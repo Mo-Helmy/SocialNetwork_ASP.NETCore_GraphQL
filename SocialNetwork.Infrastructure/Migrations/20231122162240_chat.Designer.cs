@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialNetwork.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SocialNetwork.Infrastructure.Data;
 namespace SocialNetwork.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231122162240_chat")]
+    partial class chat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,7 +36,12 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
                     b.HasKey("ChatID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Chats");
                 });
@@ -99,11 +107,16 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<int>("User2ID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
                     b.HasKey("FriendshipID");
 
                     b.HasIndex("User1ID");
 
                     b.HasIndex("User2ID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Friendships");
                 });
@@ -191,10 +204,7 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MessageID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PostID")
+                    b.Property<int>("PostID")
                         .HasColumnType("int");
 
                     b.Property<int>("Type")
@@ -204,8 +214,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("MediaID");
-
-                    b.HasIndex("MessageID");
 
                     b.HasIndex("PostID");
 
@@ -441,6 +449,13 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.Chat", b =>
+                {
+                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
+                        .WithMany("Chats")
+                        .HasForeignKey("UserID");
+                });
+
             modelBuilder.Entity("SocialNetwork.Domain.Entities.ChatParticipant", b =>
                 {
                     b.HasOne("SocialNetwork.Domain.Entities.Chat", "Chat")
@@ -480,16 +495,20 @@ namespace SocialNetwork.Infrastructure.Migrations
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Friendship", b =>
                 {
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User1")
-                        .WithMany("FriendshipsInitiated")
+                        .WithMany()
                         .HasForeignKey("User1ID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User2")
-                        .WithMany("FriendshipsReceived")
+                        .WithMany()
                         .HasForeignKey("User2ID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
+                        .WithMany("Friendships")
+                        .HasForeignKey("UserID");
 
                     b.Navigation("User1");
 
@@ -528,15 +547,11 @@ namespace SocialNetwork.Infrastructure.Migrations
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Media", b =>
                 {
-                    b.HasOne("SocialNetwork.Domain.Entities.Message", "Message")
-                        .WithMany("Medias")
-                        .HasForeignKey("MessageID");
-
                     b.HasOne("SocialNetwork.Domain.Entities.Post", "Post")
-                        .WithMany("Medias")
-                        .HasForeignKey("PostID");
-
-                    b.Navigation("Message");
+                        .WithMany("Media")
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
                 });
@@ -677,11 +692,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("PostHashtags");
                 });
 
-            modelBuilder.Entity("SocialNetwork.Domain.Entities.Message", b =>
-                {
-                    b.Navigation("Medias");
-                });
-
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Page", b =>
                 {
                     b.Navigation("PageFollowers");
@@ -693,7 +703,7 @@ namespace SocialNetwork.Infrastructure.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Medias");
+                    b.Navigation("Media");
 
                     b.Navigation("PostHashtags");
 
@@ -704,11 +714,11 @@ namespace SocialNetwork.Infrastructure.Migrations
                 {
                     b.Navigation("ChatParticipants");
 
+                    b.Navigation("Chats");
+
                     b.Navigation("Comments");
 
-                    b.Navigation("FriendshipsInitiated");
-
-                    b.Navigation("FriendshipsReceived");
+                    b.Navigation("Friendships");
 
                     b.Navigation("GroupMemberships");
 

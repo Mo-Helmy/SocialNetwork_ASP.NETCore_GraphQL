@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialNetwork.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SocialNetwork.Infrastructure.Data;
 namespace SocialNetwork.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231122164120_chat-media")]
+    partial class chatmedia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,11 +102,16 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<int>("User2ID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
                     b.HasKey("FriendshipID");
 
                     b.HasIndex("User1ID");
 
                     b.HasIndex("User2ID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Friendships");
                 });
@@ -480,16 +488,20 @@ namespace SocialNetwork.Infrastructure.Migrations
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Friendship", b =>
                 {
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User1")
-                        .WithMany("FriendshipsInitiated")
+                        .WithMany()
                         .HasForeignKey("User1ID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User2")
-                        .WithMany("FriendshipsReceived")
+                        .WithMany()
                         .HasForeignKey("User2ID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
+                        .WithMany("Friendships")
+                        .HasForeignKey("UserID");
 
                     b.Navigation("User1");
 
@@ -706,9 +718,7 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     b.Navigation("Comments");
 
-                    b.Navigation("FriendshipsInitiated");
-
-                    b.Navigation("FriendshipsReceived");
+                    b.Navigation("Friendships");
 
                     b.Navigation("GroupMemberships");
 

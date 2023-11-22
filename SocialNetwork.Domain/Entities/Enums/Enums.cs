@@ -26,8 +26,9 @@ namespace SocialNetwork.Domain.Entities.Enums
     public enum FriendshipStatus
     {
         Pending,
-        Accepted,
-        Rejected
+        Accept,
+        Reject,
+        Block
     }
 
     public enum GroupStatus
