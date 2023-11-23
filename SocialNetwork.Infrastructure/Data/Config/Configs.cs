@@ -21,9 +21,11 @@ namespace SocialNetwork.Infrastructure.Data.Config
             builder.HasMany(x => x.Friends)
                 .WithMany()
                 .UsingEntity<Friendship>(
-                    l => l.HasOne(x => x.User1).WithMany(x => x.FriendshipsInitiated).HasForeignKey(x => x.User1ID),
-                    r => r.HasOne(x => x.User2).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.User2ID)
+                    l => l.HasOne(x => x.User1).WithMany().HasForeignKey(x => x.User1ID),
+                    r => r.HasOne(x => x.User2).WithMany().HasForeignKey(x => x.User2ID)
                 );
+
+            builder.UseTptMappingStrategy();
         }
     }
     
@@ -60,15 +62,15 @@ namespace SocialNetwork.Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<Friendship> builder)
         {
-            builder.HasOne(x => x.User1)
-                .WithMany(x => x.FriendshipsInitiated)
-                .HasForeignKey(x => x.User1ID)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder.HasOne(x => x.User1)
+            //    .WithMany(x => x.FriendshipsInitiated)
+            //    .HasForeignKey(x => x.User1ID)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(x => x.User2)
-                .WithMany(x => x.FriendshipsReceived)
-                .HasForeignKey(x => x.User2ID)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder.HasOne(x => x.User2)
+            //    .WithMany(x => x.FriendshipsReceived)
+            //    .HasForeignKey(x => x.User2ID)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

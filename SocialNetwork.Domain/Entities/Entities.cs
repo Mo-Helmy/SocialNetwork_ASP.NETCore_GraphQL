@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using Microsoft.AspNetCore.Identity;
 using SocialNetwork.Domain.Entities.Enums;
 using System;
 using System.Collections.Generic;
@@ -11,15 +12,16 @@ using System.Xml.Linq;
 
 namespace SocialNetwork.Domain.Entities
 {
-    public class User
+    public class User : IdentityUser
     {
-        public int UserID { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; } // Consider using secure hash instead of plain text
-        public string ProfileInformation { get; set; }
+        //public int UserID { get; set; }
+        //public string Username { get; set; }
+        //public string Email { get; set; }
+        //public string Password { get; set; } // Consider using secure hash instead of plain text
+        public Profile Profile { get; set; }
         public DateTime RegistrationDate { get; set; }
         public DateTime LastLoginDate { get; set; }
+
         // Navigation properties for relationships
         public ICollection<Group> GroupsCreated { get; set; }
         public ICollection<GroupMember> GroupMemberships { get; set; }
@@ -27,19 +29,28 @@ namespace SocialNetwork.Domain.Entities
         public ICollection<PageFollower> PageFollowers { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Friendship> FriendshipsInitiated { get; set; }
-        public ICollection<Friendship> FriendshipsReceived { get; set; }
+        //public ICollection<Friendship> FriendshipsInitiated { get; set; }
+        //public ICollection<Friendship> FriendshipsReceived { get; set; }
         public ICollection<User> Friends { get; set; }
         public ICollection<Chat> Chats { get; set; }
         public ICollection<ChatParticipant> ChatParticipants { get; set; }
         public ICollection<Message> Messages { get; set; }
         public ICollection<Notification> Notifications { get; set; }
     }
+
+    public class Profile : User
+    {
+        public string FristName { get; set; }
+        public string LastName { get; set; }
+        public string? Bio {  get; set; }
+        public DateTime? BirthDate { get; set; }
+    }
+
     public class Friendship
     {
         public int FriendshipID { get; set; }
-        public int User1ID { get; set; }
-        public int User2ID { get; set; }
+        public string User1ID { get; set; }
+        public string User2ID { get; set; }
         public FriendshipStatus FriendshipStatus { get; set; }
         // Navigation properties
         public User User1 { get; set; }
@@ -49,7 +60,8 @@ namespace SocialNetwork.Domain.Entities
     {
         public int GroupID { get; set; }
         public string GroupName { get; set; }
-        public int CreatorUserID { get; set; }
+        public string? GroupDescription { get; set; }
+        public string CreatorUserID { get; set; }
         public GroupStatus GroupStatus { get; set; }
         public DateTime CreationDate { get; set; }
         // Navigation properties
@@ -61,7 +73,7 @@ namespace SocialNetwork.Domain.Entities
     {
         public int GroupMemberID { get; set; }
         public int GroupID { get; set; }
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         public string Role { get; set; }
         public DateTime JoinDate { get; set; }
         // Navigation properties
@@ -72,7 +84,7 @@ namespace SocialNetwork.Domain.Entities
     {
         public int PageID { get; set; }
         public string PageName { get; set; }
-        public int CreatorUserID { get; set; }
+        public string CreatorUserID { get; set; }
         public DateTime CreationDate { get; set; }
 
         // Navigation properties
@@ -84,7 +96,7 @@ namespace SocialNetwork.Domain.Entities
     {
         public int PageFollowerID { get; set; }
         public int PageID { get; set; }
-        public int? UserID { get; set; }
+        public string? UserID { get; set; }
         public string Role { get; set; }
 
         // Navigation properties
@@ -95,7 +107,7 @@ namespace SocialNetwork.Domain.Entities
     {
         public int PostID { get; set; }
         public string Content { get; set; }
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         public DateTime PostDate { get; set; }
         public int? RelatedGroupID { get; set; }
         public int? RelatedPageID { get; set; }
@@ -124,7 +136,7 @@ namespace SocialNetwork.Domain.Entities
     public class Reaction
     {
         public int ReactionID { get; set; }
-        public int? UserID { get; set; }
+        public string? UserID { get; set; }
         public int PostID { get; set; }
         public ReactionType Type { get; set; } // ReactionType is an enum
         public DateTime ReactionDate { get; set; }
@@ -138,7 +150,7 @@ namespace SocialNetwork.Domain.Entities
     {
         public int CommentID { get; set; }
         public int PostID { get; set; }
-        public int? UserID { get; set; }
+        public string? UserID { get; set; }
         public string CommentText { get; set; }
         public DateTime CommentDate { get; set; }
         // Navigation properties
@@ -158,7 +170,7 @@ namespace SocialNetwork.Domain.Entities
 
     public class ChatParticipant
     {
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         public int ChatID { get; set; }
 
         // Navigation properties
@@ -170,7 +182,7 @@ namespace SocialNetwork.Domain.Entities
     {
         public int MessageID { get; set; }
         public int ChatID { get; set; }
-        public int SenderUserID { get; set; }
+        public string SenderUserID { get; set; }
         public string MessageText { get; set; }
         public DateTime SendDate { get; set; }
 
@@ -183,7 +195,7 @@ namespace SocialNetwork.Domain.Entities
     public class Notification
     {
         public int NotificationID { get; set; }
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         public string NotificationText { get; set; }
         public DateTime NotificationDate { get; set; }
         public bool IsRead { get; set; }
