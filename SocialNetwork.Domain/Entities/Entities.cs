@@ -29,6 +29,7 @@ namespace SocialNetwork.Domain.Entities
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Friendship> FriendshipsInitiated { get; set; }
         public ICollection<Friendship> FriendshipsReceived { get; set; }
+        public ICollection<User> Friends { get; set; }
         public ICollection<Chat> Chats { get; set; }
         public ICollection<ChatParticipant> ChatParticipants { get; set; }
         public ICollection<Message> Messages { get; set; }
@@ -144,7 +145,7 @@ namespace SocialNetwork.Domain.Entities
         public Post Post { get; set; }
         public User User { get; set; }
     }
-    
+
     public class Chat
     {
         public int ChatID { get; set; }
