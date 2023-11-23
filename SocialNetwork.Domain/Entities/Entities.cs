@@ -29,9 +29,9 @@ namespace SocialNetwork.Domain.Entities
         public ICollection<PageFollower> PageFollowers { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        //public ICollection<Friendship> FriendshipsInitiated { get; set; }
-        //public ICollection<Friendship> FriendshipsReceived { get; set; }
-        public ICollection<User> Friends { get; set; }
+        public ICollection<Friendship> FriendshipsInitiated { get; set; } = new List<Friendship>();
+        public ICollection<Friendship> FriendshipsReceived { get; set; } = new List<Friendship>();
+        public ICollection<User> Friends { get; set; } = new List<User>();
         public ICollection<Chat> Chats { get; set; }
         public ICollection<ChatParticipant> ChatParticipants { get; set; }
         public ICollection<Message> Messages { get; set; }
@@ -48,13 +48,24 @@ namespace SocialNetwork.Domain.Entities
 
     public class Friendship
     {
+
         public int FriendshipID { get; set; }
-        public string User1ID { get; set; }
-        public string User2ID { get; set; }
-        public FriendshipStatus FriendshipStatus { get; set; }
-        // Navigation properties
-        public User User1 { get; set; }
-        public User User2 { get; set; }
+        public string UserID1 { get; set; }
+        public string UserID2 { get; set; }
+        public FriendshipStatus Status { get; set; }
+        public DateTime CreatedAt { get; set; }     
+        // Autres propriétés d'amitié     
+        // Propriétés de navigation
+        public virtual User User1 { get; set; }     
+        public virtual User User2 { get; set; }
+
+        //public int FriendshipID { get; set; }
+        //public string User1ID { get; set; }
+        //public string User2ID { get; set; }
+        //public FriendshipStatus FriendshipStatus { get; set; }
+        //// Navigation properties
+        //public User User1 { get; set; }
+        //public User User2 { get; set; }
     }
     public class Group
     {

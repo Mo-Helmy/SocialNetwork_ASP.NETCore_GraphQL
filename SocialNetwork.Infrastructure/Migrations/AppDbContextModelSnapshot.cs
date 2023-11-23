@@ -166,7 +166,12 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("ChatID");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Chats");
                 });
@@ -223,20 +228,23 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FriendshipID"));
 
-                    b.Property<int>("FriendshipStatus")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("User1ID")
+                    b.Property<string>("UserID1")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("User2ID")
+                    b.Property<string>("UserID2")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("FriendshipID");
 
-                    b.HasIndex("User1ID");
+                    b.HasIndex("UserID1");
 
-                    b.HasIndex("User2ID");
+                    b.HasIndex("UserID2");
 
                     b.ToTable("Friendships");
                 });
@@ -558,6 +566,10 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -621,7 +633,9 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     b.ToTable("AspNetUsers", (string)null);
 
-                    b.UseTptMappingStrategy();
+                    b.HasDiscriminator<string>("Discriminator").HasValue("User");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
@@ -640,7 +654,7 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Profiles");
+                    b.HasDiscriminator().HasValue("Profile");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -694,6 +708,13 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.Chat", b =>
+                {
+                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
+                        .WithMany("Chats")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("SocialNetwork.Domain.Entities.ChatParticipant", b =>
                 {
                     b.HasOne("SocialNetwork.Domain.Entities.Chat", "Chat")
@@ -734,13 +755,13 @@ namespace SocialNetwork.Infrastructure.Migrations
                 {
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User1")
                         .WithMany("FriendshipsInitiated")
-                        .HasForeignKey("User1ID")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UserID1")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User2")
                         .WithMany("FriendshipsReceived")
-                        .HasForeignKey("User2ID")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UserID2")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("User1");
 
@@ -907,15 +928,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("Profile");
                 });
 
-            modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
-                {
-                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
-                        .WithOne()
-                        .HasForeignKey("SocialNetwork.Domain.Entities.Profile", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Chat", b =>
                 {
                     b.Navigation("Messages");
@@ -961,6 +973,8 @@ namespace SocialNetwork.Infrastructure.Migrations
             modelBuilder.Entity("SocialNetwork.Domain.Entities.User", b =>
                 {
                     b.Navigation("ChatParticipants");
+
+                    b.Navigation("Chats");
 
                     b.Navigation("Comments");
 

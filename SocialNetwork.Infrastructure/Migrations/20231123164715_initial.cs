@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SocialNetwork.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial_identity : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,19 +61,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                         column: x => x.ProfileId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Chats",
-                columns: table => new
-                {
-                    ChatID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Chats", x => x.ChatID);
                 });
 
             migrationBuilder.CreateTable(
@@ -196,30 +183,48 @@ namespace SocialNetwork.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Chats",
+                columns: table => new
+                {
+                    ChatID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chats", x => x.ChatID);
+                    table.ForeignKey(
+                        name: "FK_Chats_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Friendships",
                 columns: table => new
                 {
                     FriendshipID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    User1ID = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    User2ID = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    FriendshipStatus = table.Column<int>(type: "int", nullable: false)
+                    UserID1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserID2 = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Friendships", x => x.FriendshipID);
                     table.ForeignKey(
-                        name: "FK_Friendships_AspNetUsers_User1ID",
-                        column: x => x.User1ID,
+                        name: "FK_Friendships_AspNetUsers_UserID1",
+                        column: x => x.UserID1,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Friendships_AspNetUsers_User2ID",
-                        column: x => x.User2ID,
+                        name: "FK_Friendships_AspNetUsers_UserID2",
+                        column: x => x.UserID2,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -581,6 +586,11 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "ChatID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Chats_UserId",
+                table: "Chats",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Comments_PostID",
                 table: "Comments",
                 column: "PostID");
@@ -591,14 +601,14 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_User1ID",
+                name: "IX_Friendships_UserID1",
                 table: "Friendships",
-                column: "User1ID");
+                column: "UserID1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_User2ID",
+                name: "IX_Friendships_UserID2",
                 table: "Friendships",
-                column: "User2ID");
+                column: "UserID2");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupMembers_GroupID",
