@@ -30,14 +30,8 @@ namespace SocialNetwork.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProfileId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastLoginDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FristName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -56,11 +50,19 @@ namespace SocialNetwork.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_AspNetUsers_ProfileId",
-                        column: x => x.ProfileId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Chats",
+                columns: table => new
+                {
+                    ChatID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chats", x => x.ChatID);
                 });
 
             migrationBuilder.CreateTable(
@@ -183,46 +185,26 @@ namespace SocialNetwork.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Chats",
-                columns: table => new
-                {
-                    ChatID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Chats", x => x.ChatID);
-                    table.ForeignKey(
-                        name: "FK_Chats_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Friendships",
                 columns: table => new
                 {
                     FriendshipID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserID1 = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UserID2 = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    SenderUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReceiverUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    FriendshipStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Friendships", x => x.FriendshipID);
                     table.ForeignKey(
-                        name: "FK_Friendships_AspNetUsers_UserID1",
-                        column: x => x.UserID1,
+                        name: "FK_Friendships_AspNetUsers_ReceiverUserID",
+                        column: x => x.ReceiverUserID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Friendships_AspNetUsers_UserID2",
-                        column: x => x.UserID2,
+                        name: "FK_Friendships_AspNetUsers_SenderUserID",
+                        column: x => x.SenderUserID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -291,6 +273,27 @@ namespace SocialNetwork.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Profiles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FristName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Profiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Profiles_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChatParticipants",
                 columns: table => new
                 {
@@ -338,6 +341,39 @@ namespace SocialNetwork.Infrastructure.Migrations
                         column: x => x.ChatID,
                         principalTable: "Chats",
                         principalColumn: "ChatID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GroupInvitations",
+                columns: table => new
+                {
+                    GroupInvitationID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GroupID = table.Column<int>(type: "int", nullable: false),
+                    InvitedUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    InvitedByUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    InvitationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupInvitations", x => x.GroupInvitationID);
+                    table.ForeignKey(
+                        name: "FK_GroupInvitations_AspNetUsers_InvitedByUserID",
+                        column: x => x.InvitedByUserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_GroupInvitations_AspNetUsers_InvitedUserID",
+                        column: x => x.InvitedUserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_GroupInvitations_Groups_GroupID",
+                        column: x => x.GroupID,
+                        principalTable: "Groups",
+                        principalColumn: "GroupID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -569,11 +605,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_ProfileId",
-                table: "AspNetUsers",
-                column: "ProfileId");
-
-            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -586,11 +617,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "ChatID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Chats_UserId",
-                table: "Chats",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Comments_PostID",
                 table: "Comments",
                 column: "PostID");
@@ -601,14 +627,29 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_UserID1",
+                name: "IX_Friendships_ReceiverUserID",
                 table: "Friendships",
-                column: "UserID1");
+                column: "ReceiverUserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Friendships_UserID2",
+                name: "IX_Friendships_SenderUserID",
                 table: "Friendships",
-                column: "UserID2");
+                column: "SenderUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupInvitations_GroupID",
+                table: "GroupInvitations",
+                column: "GroupID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupInvitations_InvitedByUserID",
+                table: "GroupInvitations",
+                column: "InvitedByUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupInvitations_InvitedUserID",
+                table: "GroupInvitations",
+                column: "InvitedUserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupMembers_GroupID",
@@ -729,6 +770,9 @@ namespace SocialNetwork.Infrastructure.Migrations
                 name: "Friendships");
 
             migrationBuilder.DropTable(
+                name: "GroupInvitations");
+
+            migrationBuilder.DropTable(
                 name: "GroupMembers");
 
             migrationBuilder.DropTable(
@@ -742,6 +786,9 @@ namespace SocialNetwork.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "PostHashtags");
+
+            migrationBuilder.DropTable(
+                name: "Profiles");
 
             migrationBuilder.DropTable(
                 name: "Reactions");

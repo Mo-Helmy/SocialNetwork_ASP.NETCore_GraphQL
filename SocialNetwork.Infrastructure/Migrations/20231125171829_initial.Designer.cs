@@ -12,7 +12,7 @@ using SocialNetwork.Infrastructure.Data;
 namespace SocialNetwork.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231123164715_initial")]
+    [Migration("20231125171829_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -169,12 +169,7 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("ChatID");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Chats");
                 });
@@ -231,23 +226,20 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FriendshipID"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
+                    b.Property<int>("FriendshipStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserID1")
+                    b.Property<string>("ReceiverUserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserID2")
+                    b.Property<string>("SenderUserID")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("FriendshipID");
 
-                    b.HasIndex("UserID1");
+                    b.HasIndex("ReceiverUserID");
 
-                    b.HasIndex("UserID2");
+                    b.HasIndex("SenderUserID");
 
                     b.ToTable("Friendships");
                 });
@@ -280,6 +272,40 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.HasIndex("CreatorUserID");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.GroupInvitation", b =>
+                {
+                    b.Property<int>("GroupInvitationID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupInvitationID"));
+
+                    b.Property<int>("GroupID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("InvitationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InvitedByUserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("InvitedUserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("GroupInvitationID");
+
+                    b.HasIndex("GroupID");
+
+                    b.HasIndex("InvitedByUserID");
+
+                    b.HasIndex("InvitedUserID");
+
+                    b.ToTable("GroupInvitations");
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.GroupMember", b =>
@@ -569,10 +595,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -606,9 +628,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ProfileId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("datetime2");
 
@@ -632,13 +651,9 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("ProfileId");
-
                     b.ToTable("AspNetUsers", (string)null);
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("User");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
@@ -657,7 +672,7 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasDiscriminator().HasValue("Profile");
+                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -711,13 +726,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SocialNetwork.Domain.Entities.Chat", b =>
-                {
-                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
-                        .WithMany("Chats")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("SocialNetwork.Domain.Entities.ChatParticipant", b =>
                 {
                     b.HasOne("SocialNetwork.Domain.Entities.Chat", "Chat")
@@ -756,19 +764,19 @@ namespace SocialNetwork.Infrastructure.Migrations
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Friendship", b =>
                 {
-                    b.HasOne("SocialNetwork.Domain.Entities.User", "User1")
-                        .WithMany("FriendshipsInitiated")
-                        .HasForeignKey("UserID1")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("SocialNetwork.Domain.Entities.User", "User2")
+                    b.HasOne("SocialNetwork.Domain.Entities.User", "ReceiverUser")
                         .WithMany("FriendshipsReceived")
-                        .HasForeignKey("UserID2")
+                        .HasForeignKey("ReceiverUserID")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.Navigation("User1");
+                    b.HasOne("SocialNetwork.Domain.Entities.User", "SenderUser")
+                        .WithMany("FriendshipsSend")
+                        .HasForeignKey("SenderUserID")
+                        .OnDelete(DeleteBehavior.NoAction);
 
-                    b.Navigation("User2");
+                    b.Navigation("ReceiverUser");
+
+                    b.Navigation("SenderUser");
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Group", b =>
@@ -778,6 +786,31 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .HasForeignKey("CreatorUserID");
 
                     b.Navigation("CreatorUser");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.GroupInvitation", b =>
+                {
+                    b.HasOne("SocialNetwork.Domain.Entities.Group", "Group")
+                        .WithMany("GroupInvitations")
+                        .HasForeignKey("GroupID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SocialNetwork.Domain.Entities.User", "InvitedByUser")
+                        .WithMany("ReceivedGroupInvitations")
+                        .HasForeignKey("InvitedByUserID")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("SocialNetwork.Domain.Entities.User", "InvitedUser")
+                        .WithMany("SentGroupInvitations")
+                        .HasForeignKey("InvitedUserID")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Group");
+
+                    b.Navigation("InvitedByUser");
+
+                    b.Navigation("InvitedUser");
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.GroupMember", b =>
@@ -922,13 +955,13 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SocialNetwork.Domain.Entities.User", b =>
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
                 {
-                    b.HasOne("SocialNetwork.Domain.Entities.Profile", "Profile")
-                        .WithMany()
-                        .HasForeignKey("ProfileId");
-
-                    b.Navigation("Profile");
+                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
+                        .WithOne()
+                        .HasForeignKey("SocialNetwork.Domain.Entities.Profile", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Chat", b =>
@@ -940,6 +973,8 @@ namespace SocialNetwork.Infrastructure.Migrations
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Group", b =>
                 {
+                    b.Navigation("GroupInvitations");
+
                     b.Navigation("GroupMembers");
 
                     b.Navigation("Posts");
@@ -977,13 +1012,11 @@ namespace SocialNetwork.Infrastructure.Migrations
                 {
                     b.Navigation("ChatParticipants");
 
-                    b.Navigation("Chats");
-
                     b.Navigation("Comments");
 
-                    b.Navigation("FriendshipsInitiated");
-
                     b.Navigation("FriendshipsReceived");
+
+                    b.Navigation("FriendshipsSend");
 
                     b.Navigation("GroupMemberships");
 
@@ -998,6 +1031,10 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("PagesCreated");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("ReceivedGroupInvitations");
+
+                    b.Navigation("SentGroupInvitations");
                 });
 #pragma warning restore 612, 618
         }

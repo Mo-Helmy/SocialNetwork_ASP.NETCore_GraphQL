@@ -1,8 +1,11 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SocialNetwork.Application.Services;
 using SocialNetwork.Domain.Entities;
 using SocialNetwork.Infrastructure.Data;
+using SocialNetwork.Infrastructure.Repositories;
+using SocialNetwork.Infrastructure.Repositories.Contract;
 
 namespace SocialNetwork.API
 {
@@ -38,6 +41,21 @@ namespace SocialNetwork.API
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IPostService, PostService>();
+
+
+
+            builder.Services
+                .AddGraphQLServer()
+                .AddQueryType<PostService>()
+                .AddProjections()
+                .AddSorting()
+                .AddFiltering()
+                ;
+
+
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -57,6 +75,8 @@ namespace SocialNetwork.API
 
 
             app.MapControllers();
+
+            app.MapGraphQL();
 
             app.Run();
         }

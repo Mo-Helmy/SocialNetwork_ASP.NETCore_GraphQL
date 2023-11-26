@@ -34,6 +34,15 @@ namespace SocialNetwork.Domain.Entities.Enums
     public enum GroupStatus
     {
         Public,
-        Private
+        Private,
+        Secret
     }
+
+    public enum InvitationStatus
+    {
+        Pending,
+        Accepted,
+        Declined
+    }
+
 }

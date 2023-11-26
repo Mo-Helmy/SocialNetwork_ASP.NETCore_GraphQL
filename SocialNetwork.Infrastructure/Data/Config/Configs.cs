@@ -10,26 +10,25 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Infrastructure.Data.Config
 {
-    //internal class UserConfig : IEntityTypeConfiguration<User>
-    //{
-    //    public void Configure(EntityTypeBuilder<User> builder)
-    //    {
-    //        builder.HasMany(x => x.Chats)
-    //            .WithMany()
-    //            .UsingEntity<ChatParticipant>();
+    internal class UserConfig : IEntityTypeConfiguration<User>
+    {
+        public void Configure(EntityTypeBuilder<User> builder)
+        {
+            builder.HasMany(x => x.Chats)
+                .WithMany()
+                .UsingEntity<ChatParticipant>();
 
-    //        //builder.HasMany(x => x.Friends)
-    //        //    .WithMany()
-    //        //    .UsingEntity<Friendship>(
-    //        //        l => l.HasOne(x => x.User1).WithMany().HasForeignKey(x => x.User1ID),
-    //        //        r => r.HasOne(x => x.User2).WithMany().HasForeignKey(x => x.User2ID)
-    //        //    );
+            builder.HasMany(x => x.Friends)
+                .WithMany()
+                .UsingEntity<Friendship>(
+                    l => l.HasOne(x => x.SenderUser).WithMany(x => x.FriendshipsSend).HasForeignKey(x => x.SenderUserID),
+                    r => r.HasOne(x => x.ReceiverUser).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverUserID)
+                );
 
+            builder.UseTptMappingStrategy();
+        }
+    }
 
-    //        builder.UseTptMappingStrategy();
-    //    }
-    //}
-    
     internal class ChatConfig : IEntityTypeConfiguration<Chat>
     {
         public void Configure(EntityTypeBuilder<Chat> builder)
@@ -59,22 +58,22 @@ namespace SocialNetwork.Infrastructure.Data.Config
         }
     }
 
-    //internal class FriendshipConfig : IEntityTypeConfiguration<Friendship>
-    //{
-    //    public void Configure(EntityTypeBuilder<Friendship> builder)
-    //    {
-    //        //builder.HasOne(x => x.User1)
-    //        //    .WithMany(x => x.FriendshipsInitiated)
-    //        //    .HasForeignKey(x => x.User1ID)
-    //        //    .OnDelete(DeleteBehavior.Restrict);
+    internal class FriendshipConfig : IEntityTypeConfiguration<Friendship>
+    {
+        public void Configure(EntityTypeBuilder<Friendship> builder)
+        {
+            builder.HasOne(x => x.SenderUser)
+                .WithMany(x => x.FriendshipsSend)
+                .HasForeignKey(x => x.SenderUserID)
+                .OnDelete(DeleteBehavior.NoAction);
 
-    //        //builder.HasOne(x => x.User2)
-    //        //    .WithMany(x => x.FriendshipsReceived)
-    //        //    .HasForeignKey(x => x.User2ID)
-    //        //    .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(x => x.ReceiverUser)
+                .WithMany(x => x.FriendshipsReceived)
+                .HasForeignKey(x => x.ReceiverUserID)
+                .OnDelete(DeleteBehavior.NoAction);
 
-    //    }
-    //}
+        }
+    }
 
     internal class GroupMemberConfig : IEntityTypeConfiguration<GroupMember>
     {
@@ -84,6 +83,23 @@ namespace SocialNetwork.Infrastructure.Data.Config
                 .WithMany(x => x.GroupMemberships)
                 .HasForeignKey(x => x.UserID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+        }
+    }
+    
+    internal class GroupInvitationConfig : IEntityTypeConfiguration<GroupInvitation>
+    {
+        public void Configure(EntityTypeBuilder<GroupInvitation> builder)
+        {
+            builder.HasOne(x => x.InvitedUser)
+                .WithMany(x => x.SentGroupInvitations)
+                .HasForeignKey(x => x.InvitedUserID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(x => x.InvitedByUser)
+                .WithMany(x => x.ReceivedGroupInvitations)
+                .HasForeignKey(x => x.InvitedByUserID)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

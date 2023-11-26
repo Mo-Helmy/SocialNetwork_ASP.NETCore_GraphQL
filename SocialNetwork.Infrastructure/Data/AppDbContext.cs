@@ -16,6 +16,7 @@ namespace SocialNetwork.Infrastructure.Data
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
+        public DbSet<GroupInvitation> GroupInvitations { get; set; }
         public DbSet<Page> Pages { get; set; }
         public DbSet<PageFollower> PageFollowers { get; set; }
         public DbSet<Post> Posts { get; set; }
@@ -34,33 +35,9 @@ namespace SocialNetwork.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
-            modelBuilder.Entity<Friendship>()
-                .HasOne(f => f.User1).WithMany(u => u.FriendshipsInitiated)
-                .HasForeignKey(f => f.UserID1)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Friendship>()
-                .HasOne(f => f.User2)
-                .WithMany(u => u.FriendshipsReceived)
-                .HasForeignKey(f => f.UserID2)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Friends)
-                .WithMany()
-                .UsingEntity<Friendship>(
-                    j => j.HasOne(f => f.User2).WithMany().HasForeignKey(f => f.UserID2),
-                    j => j.HasOne(f => f.User1).WithMany().HasForeignKey(f => f.UserID1),
-                    j =>
-                    {
-                        j.ToTable("Friendships");
-                    });
-
-            base.OnModelCreating(modelBuilder);
         }
-
     }
 }

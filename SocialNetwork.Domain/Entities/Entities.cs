@@ -14,24 +14,21 @@ namespace SocialNetwork.Domain.Entities
 {
     public class User : IdentityUser
     {
-        //public int UserID { get; set; }
-        //public string Username { get; set; }
-        //public string Email { get; set; }
-        //public string Password { get; set; } // Consider using secure hash instead of plain text
-        public Profile Profile { get; set; }
         public DateTime RegistrationDate { get; set; }
         public DateTime LastLoginDate { get; set; }
 
         // Navigation properties for relationships
         public ICollection<Group> GroupsCreated { get; set; }
         public ICollection<GroupMember> GroupMemberships { get; set; }
+        public ICollection<GroupInvitation> ReceivedGroupInvitations { get; set; }
+        public ICollection<GroupInvitation> SentGroupInvitations { get; set; }
         public ICollection<Page> PagesCreated { get; set; }
         public ICollection<PageFollower> PageFollowers { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Friendship> FriendshipsInitiated { get; set; } = new List<Friendship>();
-        public ICollection<Friendship> FriendshipsReceived { get; set; } = new List<Friendship>();
-        public ICollection<User> Friends { get; set; } = new List<User>();
+        public ICollection<Friendship> FriendshipsSend { get; set; }
+        public ICollection<Friendship> FriendshipsReceived { get; set; }
+        public ICollection<User> Friends { get; set; }
         public ICollection<Chat> Chats { get; set; }
         public ICollection<ChatParticipant> ChatParticipants { get; set; }
         public ICollection<Message> Messages { get; set; }
@@ -48,24 +45,14 @@ namespace SocialNetwork.Domain.Entities
 
     public class Friendship
     {
-
         public int FriendshipID { get; set; }
-        public string UserID1 { get; set; }
-        public string UserID2 { get; set; }
-        public FriendshipStatus Status { get; set; }
-        public DateTime CreatedAt { get; set; }     
-        // Autres propriétés d'amitié     
-        // Propriétés de navigation
-        public virtual User User1 { get; set; }     
-        public virtual User User2 { get; set; }
+        public string SenderUserID { get; set; }
+        public string ReceiverUserID { get; set; }
+        public FriendshipStatus FriendshipStatus { get; set; }
 
-        //public int FriendshipID { get; set; }
-        //public string User1ID { get; set; }
-        //public string User2ID { get; set; }
-        //public FriendshipStatus FriendshipStatus { get; set; }
-        //// Navigation properties
-        //public User User1 { get; set; }
-        //public User User2 { get; set; }
+        // Navigation properties
+        public User SenderUser { get; set; }
+        public User ReceiverUser { get; set; }
     }
     public class Group
     {
@@ -78,6 +65,7 @@ namespace SocialNetwork.Domain.Entities
         // Navigation properties
         public User CreatorUser { get; set; }
         public ICollection<GroupMember> GroupMembers { get; set; }
+        public ICollection<GroupInvitation> GroupInvitations { get; set; }
         public ICollection<Post> Posts { get; set; }
     }
     public class GroupMember
@@ -91,6 +79,22 @@ namespace SocialNetwork.Domain.Entities
         public Group Group { get; set; }
         public User User { get; set; }
     }
+    public class GroupInvitation
+    {
+        public int GroupInvitationID { get; set; }
+        public int GroupID { get; set; }
+        public string InvitedUserID { get; set; }
+        public string InvitedByUserID { get; set; }
+        public DateTime InvitationDate { get; set; }
+        public InvitationStatus Status { get; set; } // Enum for Pending, Accepted, Declined
+
+        // Navigation properties
+        public Group Group { get; set; }
+        public User InvitedUser { get; set; }
+        public User InvitedByUser { get; set; }
+    }
+
+
     public class Page
     {
         public int PageID { get; set; }
@@ -136,6 +140,8 @@ namespace SocialNetwork.Domain.Entities
     {
         public int MediaID { get; set; }
         public int? PostID { get; set; }
+        public int? MessageId { get; set; }
+        public int? CommentId { get; set; }
         public MediaType Type { get; set; } // MediaType is an enum
         public string Location { get; set; } // URL or path to the media
         public DateTime UploadDate { get; set; }
@@ -143,18 +149,23 @@ namespace SocialNetwork.Domain.Entities
         // Navigation properties
         public Post Post { get; set; }
         public Message Message { get; set; }
+        public Comment Comment { get; set; }
     }
     public class Reaction
     {
         public int ReactionID { get; set; }
         public string? UserID { get; set; }
-        public int PostID { get; set; }
+        public int? PostID { get; set; }
+        public int CommentId { get; set; }
+        public int? MessageId { get; set; }
         public ReactionType Type { get; set; } // ReactionType is an enum
         public DateTime ReactionDate { get; set; }
 
         // Navigation properties
         public User User { get; set; }
         public Post Post { get; set; }
+        public Comment Comment { get; set; }
+        public Message Message { get; set; }
     }
 
     public class Comment
@@ -167,6 +178,9 @@ namespace SocialNetwork.Domain.Entities
         // Navigation properties
         public Post Post { get; set; }
         public User User { get; set; }
+        public ICollection<Media> Medias { get; set; }
+        public ICollection<Reaction> Reactions { get; set; }
+
     }
 
     public class Chat
@@ -201,6 +215,7 @@ namespace SocialNetwork.Domain.Entities
         public Chat Chat { get; set; }
         public User SenderUser { get; set; }
         public ICollection<Media> Medias { get; set; }
+        public ICollection<Reaction> Reactions { get; set; }
 
     }
     public class Notification
