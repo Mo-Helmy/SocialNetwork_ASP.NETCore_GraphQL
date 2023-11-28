@@ -18,6 +18,7 @@ namespace SocialNetwork.Domain.Entities
         public DateTime LastLoginDate { get; set; }
 
         // Navigation properties for relationships
+        public Profile Profile { get; set; }
         public ICollection<Group> GroupsCreated { get; set; }
         public ICollection<GroupMember> GroupMemberships { get; set; }
         public ICollection<GroupInvitation> ReceivedGroupInvitations { get; set; }
@@ -35,12 +36,18 @@ namespace SocialNetwork.Domain.Entities
         public ICollection<Notification> Notifications { get; set; }
     }
 
-    public class Profile : User
+    public class Profile
     {
+        public int Id { get; set; }
         public string FristName { get; set; }
         public string LastName { get; set; }
         public string? Bio {  get; set; }
+        public Gender Gender { get; set; }
+        public string? PicturePath { get; set; }
         public DateTime? BirthDate { get; set; }
+
+        public string UserId { get; set; }
+        public User User { get; set; }
     }
 
     public class Friendship
@@ -66,14 +73,14 @@ namespace SocialNetwork.Domain.Entities
         public User CreatorUser { get; set; }
         public ICollection<GroupMember> GroupMembers { get; set; }
         public ICollection<GroupInvitation> GroupInvitations { get; set; }
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<GroupPost> GroupPosts { get; set; }
     }
     public class GroupMember
     {
         public int GroupMemberID { get; set; }
         public int GroupID { get; set; }
         public string UserID { get; set; }
-        public string Role { get; set; }
+        public GroupMemberRole Role { get; set; }
         public DateTime JoinDate { get; set; }
         // Navigation properties
         public Group Group { get; set; }
@@ -94,25 +101,25 @@ namespace SocialNetwork.Domain.Entities
         public User InvitedByUser { get; set; }
     }
 
-
     public class Page
     {
         public int PageID { get; set; }
         public string PageName { get; set; }
+        public string? PageDescription {  get; set; }
         public string CreatorUserID { get; set; }
         public DateTime CreationDate { get; set; }
 
         // Navigation properties
         public User CreatorUser { get; set; }
         public ICollection<PageFollower> PageFollowers { get; set; }
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<PagePost> PagePosts { get; set; }
     }
     public class PageFollower
     {
         public int PageFollowerID { get; set; }
         public int PageID { get; set; }
         public string? UserID { get; set; }
-        public string Role { get; set; }
+        public PageFollowerRole Role { get; set; }
 
         // Navigation properties
         public Page Page { get; set; }
@@ -124,47 +131,82 @@ namespace SocialNetwork.Domain.Entities
         public string Content { get; set; }
         public string UserID { get; set; }
         public DateTime PostDate { get; set; }
-        public int? RelatedGroupID { get; set; }
-        public int? RelatedPageID { get; set; }
 
         // Navigation properties
         public User User { get; set; }
-        public Group Group { get; set; }
-        public Page Page { get; set; }
-        public ICollection<Media> Medias { get; set; }
+        public ICollection<PostMedia> Medias { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Reaction> Reactions { get; set; }
+        public ICollection<PostReaction> PostReactions { get; set; }
         public ICollection<PostHashtag> PostHashtags { get; set; }
     }
+
+    public class GroupPost : Post
+    {
+        public int GroupID { get; set; }
+        public Group Group { get; set; }
+    }
+
+    public class PagePost : Post
+    {
+        public int PageID { get; set; }
+        public Page Page { get; set; }
+    }
+
     public class Media
     {
         public int MediaID { get; set; }
-        public int? PostID { get; set; }
-        public int? MessageId { get; set; }
-        public int? CommentId { get; set; }
+        public string UserId { get; set; }
         public MediaType Type { get; set; } // MediaType is an enum
-        public string Location { get; set; } // URL or path to the media
+        public string Path { get; set; } // URL or path to the media
         public DateTime UploadDate { get; set; }
 
         // Navigation properties
+        public User User { get; set; }
+    }
+
+    public class PostMedia : Media
+    {
+        public int PostID { get; set; }
         public Post Post { get; set; }
-        public Message Message { get; set; }
+    }
+
+    public class CommentMedia : Media
+    {
+        public int CommentId { get; set; }
         public Comment Comment { get; set; }
     }
+
+    public class MessageMedia : Media
+    {
+        public int MessageId { get; set; }
+        public Message Message { get; set; }
+
+    }
+
     public class Reaction
     {
         public int ReactionID { get; set; }
         public string? UserID { get; set; }
-        public int? PostID { get; set; }
-        public int CommentId { get; set; }
-        public int? MessageId { get; set; }
-        public ReactionType Type { get; set; } // ReactionType is an enum
+        public ReactionType Type { get; set; } 
         public DateTime ReactionDate { get; set; }
 
         // Navigation properties
         public User User { get; set; }
+    }
+
+    public class PostReaction : Reaction
+    {
+        public int PostID { get; set; }
         public Post Post { get; set; }
+    }
+    public class CommentReaction : Reaction
+    {
+        public int CommentId { get; set; }
         public Comment Comment { get; set; }
+    }
+    public class MessageReaction : Reaction
+    {
+        public int MessageId { get; set; }
         public Message Message { get; set; }
     }
 
@@ -175,12 +217,12 @@ namespace SocialNetwork.Domain.Entities
         public string? UserID { get; set; }
         public string CommentText { get; set; }
         public DateTime CommentDate { get; set; }
+
         // Navigation properties
         public Post Post { get; set; }
         public User User { get; set; }
-        public ICollection<Media> Medias { get; set; }
-        public ICollection<Reaction> Reactions { get; set; }
-
+        public ICollection<CommentMedia> Medias { get; set; }
+        public ICollection<CommentReaction> CommentReactions { get; set; }
     }
 
     public class Chat
@@ -214,10 +256,10 @@ namespace SocialNetwork.Domain.Entities
         // Navigation properties
         public Chat Chat { get; set; }
         public User SenderUser { get; set; }
-        public ICollection<Media> Medias { get; set; }
-        public ICollection<Reaction> Reactions { get; set; }
-
+        public ICollection<MessageMedia> Medias { get; set; }
+        public ICollection<MessageReaction> MessageReactions { get; set; }
     }
+
     public class Notification
     {
         public int NotificationID { get; set; }

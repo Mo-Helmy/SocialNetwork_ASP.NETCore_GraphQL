@@ -1,4 +1,5 @@
 ﻿using SocialNetwork.Domain.Entities;
+using SocialNetwork.Infrastructure.Data;
 using SocialNetwork.Infrastructure.Repositories.Contract;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,19 @@ namespace SocialNetwork.Application.Services
         [UseProjection]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Post> GetPosts()
+        public IQueryable<Post> GetPosts(AppDbContext dbContext)
         {
-            return _postRepo.GetAllAsync();
+            return dbContext.Set<Post>();
+        }
+
+        [UsePaging]
+        [UseProjection]
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<User> GetUsers(AppDbContext dbContext)
+        {
+            return dbContext.Set<User>();
+
         }
 
     }

@@ -12,8 +12,8 @@ using SocialNetwork.Infrastructure.Data;
 namespace SocialNetwork.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231125171829_initial")]
-    partial class initial
+    [Migration("20231127185631_pagerole-grouprole")]
+    partial class pagerolegrouprole
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -322,8 +322,8 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserID")
                         .HasColumnType("nvarchar(450)");
@@ -361,10 +361,13 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MediaID"));
 
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MessageID")
+                    b.Property<int?>("MessageId")
                         .HasColumnType("int");
 
                     b.Property<int?>("PostID")
@@ -378,7 +381,9 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     b.HasKey("MediaID");
 
-                    b.HasIndex("MessageID");
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("MessageId");
 
                     b.HasIndex("PostID");
 
@@ -455,6 +460,9 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<string>("CreatorUserID")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("PageDescription")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PageName")
                         .HasColumnType("nvarchar(max)");
 
@@ -476,8 +484,8 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Property<int>("PageID")
                         .HasColumnType("int");
 
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserID")
                         .HasColumnType("nvarchar(450)");
@@ -554,6 +562,44 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.ToTable("PostHashtags");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Bio")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FristName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PicturePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("Profiles");
+                });
+
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Reaction", b =>
                 {
                     b.Property<int>("ReactionID")
@@ -562,7 +608,13 @@ namespace SocialNetwork.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReactionID"));
 
-                    b.Property<int>("PostID")
+                    b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MessageId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReactionDate")
@@ -575,6 +627,10 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ReactionID");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("MessageId");
 
                     b.HasIndex("PostID");
 
@@ -652,27 +708,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.UseTptMappingStrategy();
-                });
-
-            modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
-                {
-                    b.HasBaseType("SocialNetwork.Domain.Entities.User");
-
-                    b.Property<string>("Bio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("BirthDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FristName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -833,13 +868,19 @@ namespace SocialNetwork.Infrastructure.Migrations
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Media", b =>
                 {
+                    b.HasOne("SocialNetwork.Domain.Entities.Comment", "Comment")
+                        .WithMany("Medias")
+                        .HasForeignKey("CommentId");
+
                     b.HasOne("SocialNetwork.Domain.Entities.Message", "Message")
                         .WithMany("Medias")
-                        .HasForeignKey("MessageID");
+                        .HasForeignKey("MessageId");
 
                     b.HasOne("SocialNetwork.Domain.Entities.Post", "Post")
                         .WithMany("Medias")
                         .HasForeignKey("PostID");
+
+                    b.Navigation("Comment");
 
                     b.Navigation("Message");
 
@@ -938,30 +979,42 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
+                {
+                    b.HasOne("SocialNetwork.Domain.Entities.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("SocialNetwork.Domain.Entities.Profile", "UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Reaction", b =>
                 {
-                    b.HasOne("SocialNetwork.Domain.Entities.Post", "Post")
+                    b.HasOne("SocialNetwork.Domain.Entities.Comment", "Comment")
                         .WithMany("Reactions")
-                        .HasForeignKey("PostID")
+                        .HasForeignKey("CommentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("SocialNetwork.Domain.Entities.Message", "Message")
+                        .WithMany("Reactions")
+                        .HasForeignKey("MessageId");
+
+                    b.HasOne("SocialNetwork.Domain.Entities.Post", "Post")
+                        .WithMany("Reactions")
+                        .HasForeignKey("PostID");
 
                     b.HasOne("SocialNetwork.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID");
 
+                    b.Navigation("Comment");
+
+                    b.Navigation("Message");
+
                     b.Navigation("Post");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SocialNetwork.Domain.Entities.Profile", b =>
-                {
-                    b.HasOne("SocialNetwork.Domain.Entities.User", null)
-                        .WithOne()
-                        .HasForeignKey("SocialNetwork.Domain.Entities.Profile", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Chat", b =>
@@ -969,6 +1022,13 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("SocialNetwork.Domain.Entities.Comment", b =>
+                {
+                    b.Navigation("Medias");
+
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Group", b =>
@@ -988,6 +1048,8 @@ namespace SocialNetwork.Infrastructure.Migrations
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Message", b =>
                 {
                     b.Navigation("Medias");
+
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("SocialNetwork.Domain.Entities.Page", b =>
@@ -1031,6 +1093,8 @@ namespace SocialNetwork.Infrastructure.Migrations
                     b.Navigation("PagesCreated");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("Profile");
 
                     b.Navigation("ReceivedGroupInvitations");
 

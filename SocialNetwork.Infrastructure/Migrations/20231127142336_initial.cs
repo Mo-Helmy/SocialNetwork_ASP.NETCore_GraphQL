@@ -276,21 +276,23 @@ namespace SocialNetwork.Infrastructure.Migrations
                 name: "Profiles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     FristName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Gender = table.Column<int>(type: "int", nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Profiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Profiles_AspNetUsers_Id",
-                        column: x => x.Id,
+                        name: "FK_Profiles_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -493,33 +495,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Medias",
-                columns: table => new
-                {
-                    MediaID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PostID = table.Column<int>(type: "int", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MessageID = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Medias", x => x.MediaID);
-                    table.ForeignKey(
-                        name: "FK_Medias_Messages_MessageID",
-                        column: x => x.MessageID,
-                        principalTable: "Messages",
-                        principalColumn: "MessageID");
-                    table.ForeignKey(
-                        name: "FK_Medias_Posts_PostID",
-                        column: x => x.PostID,
-                        principalTable: "Posts",
-                        principalColumn: "PostID");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PostHashtags",
                 columns: table => new
                 {
@@ -546,13 +521,48 @@ namespace SocialNetwork.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Medias",
+                columns: table => new
+                {
+                    MediaID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PostID = table.Column<int>(type: "int", nullable: true),
+                    MessageId = table.Column<int>(type: "int", nullable: true),
+                    CommentId = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Medias", x => x.MediaID);
+                    table.ForeignKey(
+                        name: "FK_Medias_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "CommentID");
+                    table.ForeignKey(
+                        name: "FK_Medias_Messages_MessageId",
+                        column: x => x.MessageId,
+                        principalTable: "Messages",
+                        principalColumn: "MessageID");
+                    table.ForeignKey(
+                        name: "FK_Medias_Posts_PostID",
+                        column: x => x.PostID,
+                        principalTable: "Posts",
+                        principalColumn: "PostID");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Reactions",
                 columns: table => new
                 {
                     ReactionID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    PostID = table.Column<int>(type: "int", nullable: false),
+                    PostID = table.Column<int>(type: "int", nullable: true),
+                    CommentId = table.Column<int>(type: "int", nullable: false),
+                    MessageId = table.Column<int>(type: "int", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
                     ReactionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -565,11 +575,21 @@ namespace SocialNetwork.Infrastructure.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_Reactions_Comments_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comments",
+                        principalColumn: "CommentID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Reactions_Messages_MessageId",
+                        column: x => x.MessageId,
+                        principalTable: "Messages",
+                        principalColumn: "MessageID");
+                    table.ForeignKey(
                         name: "FK_Reactions_Posts_PostID",
                         column: x => x.PostID,
                         principalTable: "Posts",
-                        principalColumn: "PostID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "PostID");
                 });
 
             migrationBuilder.CreateIndex(
@@ -667,9 +687,14 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "CreatorUserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Medias_MessageID",
+                name: "IX_Medias_CommentId",
                 table: "Medias",
-                column: "MessageID");
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Medias_MessageId",
+                table: "Medias",
+                column: "MessageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Medias_PostID",
@@ -732,6 +757,23 @@ namespace SocialNetwork.Infrastructure.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Profiles_UserId",
+                table: "Profiles",
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reactions_CommentId",
+                table: "Reactions",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reactions_MessageId",
+                table: "Reactions",
+                column: "MessageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reactions_PostID",
                 table: "Reactions",
                 column: "PostID");
@@ -764,9 +806,6 @@ namespace SocialNetwork.Infrastructure.Migrations
                 name: "ChatParticipants");
 
             migrationBuilder.DropTable(
-                name: "Comments");
-
-            migrationBuilder.DropTable(
                 name: "Friendships");
 
             migrationBuilder.DropTable(
@@ -797,10 +836,13 @@ namespace SocialNetwork.Infrastructure.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Messages");
+                name: "Hashtags");
 
             migrationBuilder.DropTable(
-                name: "Hashtags");
+                name: "Comments");
+
+            migrationBuilder.DropTable(
+                name: "Messages");
 
             migrationBuilder.DropTable(
                 name: "Posts");

@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Domain.Entities.Enums
 {
+    public enum Gender
+    {
+        Male,
+        Female
+    }
     public enum ReactionType
     {
         Like,
@@ -29,6 +34,20 @@ namespace SocialNetwork.Domain.Entities.Enums
         Accept,
         Reject,
         Block
+    }
+
+    public enum PageFollowerRole
+    {
+        Admin,
+        Moderator,
+        Member,
+    }
+
+    public enum GroupMemberRole
+    {
+        Admin,
+        Moderator,
+        Member,
     }
 
     public enum GroupStatus

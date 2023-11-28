@@ -25,7 +25,7 @@ namespace SocialNetwork.Infrastructure.Data.Config
                     r => r.HasOne(x => x.ReceiverUser).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverUserID)
                 );
 
-            builder.UseTptMappingStrategy();
+            //builder.UseTptMappingStrategy();
         }
     }
 
@@ -75,6 +75,14 @@ namespace SocialNetwork.Infrastructure.Data.Config
         }
     }
 
+    internal class GroupConfig : IEntityTypeConfiguration<Group>
+    {
+        public void Configure(EntityTypeBuilder<Group> builder)
+        {
+            //builder.Property(x => x.GroupID).ValueGeneratedNever();
+        }
+    }
+
     internal class GroupMemberConfig : IEntityTypeConfiguration<GroupMember>
     {
         public void Configure(EntityTypeBuilder<GroupMember> builder)
@@ -84,6 +92,7 @@ namespace SocialNetwork.Infrastructure.Data.Config
                 .HasForeignKey(x => x.UserID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            //builder.Property(x => x.GroupMemberID).ValueGeneratedNever();
         }
     }
     
@@ -100,7 +109,28 @@ namespace SocialNetwork.Infrastructure.Data.Config
                 .WithMany(x => x.ReceivedGroupInvitations)
                 .HasForeignKey(x => x.InvitedByUserID)
                 .OnDelete(DeleteBehavior.NoAction);
+        }
+    }
 
+    internal class PostMediaConfig : IEntityTypeConfiguration<PostMedia>
+    {
+        public void Configure(EntityTypeBuilder<PostMedia> builder)
+        {
+            builder.HasOne(x => x.Post)
+                .WithMany(x => x.Medias)
+                .HasForeignKey(x => x.PostID)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
+    }
+
+    internal class PostReactionConfig : IEntityTypeConfiguration<PostReaction>
+    {
+        public void Configure(EntityTypeBuilder<PostReaction> builder)
+        {
+            builder.HasOne(x => x.Post)
+                .WithMany(x => x.PostReactions)
+                .HasForeignKey(x => x.PostID)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

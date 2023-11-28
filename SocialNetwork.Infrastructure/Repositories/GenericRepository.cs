@@ -55,32 +55,34 @@ namespace SocialNetwork.Infrastructure.Repositories
         #region Command Methods
         public async Task<T?> CreateAsync(T entity)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
             //entity.DateCreated = DateTime.Now;
             //entity.IsDeleted = false;
 
-            //await _dbContext.Set<T>().AddAsync(entity);
+            await _dbContext.Set<T>().AddAsync(entity);
 
-            //return entity;
+            return entity;
         }
 
         public async Task<T?> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
-            //var entity = await _dbContext.Set<T>().FindAsync(id);
+            var entity = await _dbContext.Set<T>().FindAsync(id);
 
-            //if (entity is null) return null;
+            if (entity is null) return null;
 
             //entity.IsDeleted = true;
             //entity.DateDeleted = DateTime.Now;
 
-            //return entity;
+            _dbContext.Set<T>().Remove(entity);
+
+            return entity;
         }
 
         public async Task<T?> UpdateAsync(T entity)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
             //var currentEntity = await _dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == entity.Id);
 
@@ -94,7 +96,9 @@ namespace SocialNetwork.Infrastructure.Repositories
 
             ////_dbContext.Entry(entity).State = EntityState.Modified;
 
-            //return currentEntity;
+            _dbContext.Set<T>().Update(entity);
+
+            return entity;
         }
 
         private static void UpdateObject(object target, object source)

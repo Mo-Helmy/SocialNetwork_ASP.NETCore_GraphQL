@@ -1,4 +1,5 @@
 
+using JobResearchSystem.API.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SocialNetwork.Application.Services;
@@ -11,7 +12,7 @@ namespace SocialNetwork.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,7 @@ namespace SocialNetwork.API
 
             builder.Services
                 .AddGraphQLServer()
+                .RegisterDbContext<AppDbContext>()
                 .AddQueryType<PostService>()
                 .AddProjections()
                 .AddSorting()
@@ -61,6 +63,8 @@ namespace SocialNetwork.API
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            await app.UpdateDatabase();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

@@ -19,9 +19,21 @@ namespace SocialNetwork.Infrastructure.Data
         public DbSet<GroupInvitation> GroupInvitations { get; set; }
         public DbSet<Page> Pages { get; set; }
         public DbSet<PageFollower> PageFollowers { get; set; }
+
         public DbSet<Post> Posts { get; set; }
+        public DbSet<PagePost> PagePosts { get; set; }
+        public DbSet<GroupPost> GroupPosts { get; set; }
+
         public DbSet<Media> Medias { get; set; }
+        public DbSet<PostMedia> PostMedias { get; set; }
+        public DbSet<CommentMedia> CommentMedias { get; set; }
+        public DbSet<MessageMedia> MessageMedias { get; set; }
+
         public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<PostReaction> PostReactions { get; set; }
+        public DbSet<CommentReaction> CommentReactions { get; set; }
+        public DbSet<MessageReaction> MessageReactions { get; set; }
+
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<Chat> Chats { get; set; }
