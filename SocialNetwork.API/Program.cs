@@ -1,12 +1,16 @@
-
-using JobResearchSystem.API.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SocialNetwork.API.Extensions;
+using SocialNetwork.Application.Errors;
+using SocialNetwork.Application.Middlewares;
 using SocialNetwork.Application.Services;
-using SocialNetwork.Domain.Entities;
+using SocialNetwork.Application;
 using SocialNetwork.Infrastructure.Data;
+using SocialNetwork.Infrastructure.Identity;
 using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Repositories.Contract;
+using SocialNetwork.Infrastructure;
 
 namespace SocialNetwork.API
 {
@@ -20,31 +24,38 @@ namespace SocialNetwork.API
 
             builder.Services.AddControllers();
 
-            builder.Services.AddDbContext<AppDbContext>(options =>
+            builder.Services.AddDbContext<AppDbContext>(options => 
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+            builder.Services.AddDbContext<AppIdentityDbContext>(options => 
+                options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDefault")));
+
+            builder.Services.AddIdentityServices(builder.Configuration);
+
+            #region Validation Behavior
+
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
-            });
-
-            builder.Services
-                .AddIdentity<User, IdentityRole>(options =>
+                options.InvalidModelStateResponseFactory = (actionContext) =>
                 {
-                    // configure identity services options
-                    options.Password.RequiredLength = 8;
-                    options.Password.RequireDigit = false;
-                    options.Password.RequireLowercase = false;
-                    options.Password.RequireUppercase = false;
-                    options.Password.RequireNonAlphanumeric = false;
+                    var errors = actionContext.ModelState.Where(x => x.Value?.Errors.Count > 0)
+                                            .SelectMany(x => x.Value.Errors)
+                                            .Select(x => x.ErrorMessage)
+                                            .ToList();
 
-                    //options.SignIn.RequireConfirmedAccount = true;
-                    options.SignIn.RequireConfirmedEmail = true;
-                    options.SignIn.RequireConfirmedPhoneNumber = false;
-                })
-                .AddEntityFrameworkStores<AppDbContext>()
-                .AddDefaultTokenProviders();
+                    var validationErrorResponse = new ApiValidationErrorResponse() { Errors = errors };
+
+                    return new BadRequestObjectResult(validationErrorResponse);
+                };
+            });
+            #endregion
+
+            builder.Services.AddApplicationsServices(builder.Configuration);
+            builder.Services.AddInfrastructureDependencies();
+
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IPostService, PostService>();
-
 
 
             builder.Services
@@ -57,26 +68,19 @@ namespace SocialNetwork.API
                 ;
 
 
+            builder.Services.AddSwaggerServices();
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             await app.UpdateDatabase();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
+            app.UseSwaggerMiddlewares();
 
             app.UseAuthorization();
+            app.UseAuthorization();
 
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.MapControllers();
 

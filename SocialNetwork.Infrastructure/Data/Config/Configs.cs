@@ -10,10 +10,17 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Infrastructure.Data.Config
 {
-    internal class UserConfig : IEntityTypeConfiguration<User>
+    internal class ProfileConfig : IEntityTypeConfiguration<Profile>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<Profile> builder)
         {
+            builder.HasKey(x => x.ProfileId);
+
+            //builder.HasOne(x => x.User)
+            //    .WithOne(x => x.Profile)
+            //    .HasForeignKey<Profile>(x => x.ProfileId)
+            //    .OnDelete(DeleteBehavior.NoAction);
+
             builder.HasMany(x => x.Chats)
                 .WithMany()
                 .UsingEntity<ChatParticipant>();
@@ -21,8 +28,8 @@ namespace SocialNetwork.Infrastructure.Data.Config
             builder.HasMany(x => x.Friends)
                 .WithMany()
                 .UsingEntity<Friendship>(
-                    l => l.HasOne(x => x.SenderUser).WithMany(x => x.FriendshipsSend).HasForeignKey(x => x.SenderUserID),
-                    r => r.HasOne(x => x.ReceiverUser).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverUserID)
+                    l => l.HasOne(x => x.SenderProfile).WithMany(x => x.FriendshipsSend).HasForeignKey(x => x.SenderProfileID),
+                    r => r.HasOne(x => x.ReceiverProfile).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverProfileID)
                 );
 
             //builder.UseTptMappingStrategy();
@@ -43,12 +50,12 @@ namespace SocialNetwork.Infrastructure.Data.Config
         public void Configure(EntityTypeBuilder<ChatParticipant> builder)
         {
             builder
-                .HasKey(cp => new { cp.UserID, cp.ChatID });
+                .HasKey(cp => new { cp.ProfileID, cp.ChatID });
 
             builder
-                .HasOne(cp => cp.User)
+                .HasOne(cp => cp.Profile)
                 .WithMany(u => u.ChatParticipants)
-                .HasForeignKey(cp => cp.UserID);
+                .HasForeignKey(cp => cp.ProfileID);
 
             builder
                 .HasOne(cp => cp.Chat)
@@ -62,14 +69,14 @@ namespace SocialNetwork.Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<Friendship> builder)
         {
-            builder.HasOne(x => x.SenderUser)
+            builder.HasOne(x => x.SenderProfile)
                 .WithMany(x => x.FriendshipsSend)
-                .HasForeignKey(x => x.SenderUserID)
+                .HasForeignKey(x => x.SenderProfileID)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasOne(x => x.ReceiverUser)
+            builder.HasOne(x => x.ReceiverProfile)
                 .WithMany(x => x.FriendshipsReceived)
-                .HasForeignKey(x => x.ReceiverUserID)
+                .HasForeignKey(x => x.ReceiverProfileID)
                 .OnDelete(DeleteBehavior.NoAction);
 
         }
@@ -87,9 +94,9 @@ namespace SocialNetwork.Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<GroupMember> builder)
         {
-            builder.HasOne(x => x.User)
+            builder.HasOne(x => x.Profile)
                 .WithMany(x => x.GroupMemberships)
-                .HasForeignKey(x => x.UserID)
+                .HasForeignKey(x => x.ProfileID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //builder.Property(x => x.GroupMemberID).ValueGeneratedNever();
@@ -100,14 +107,14 @@ namespace SocialNetwork.Infrastructure.Data.Config
     {
         public void Configure(EntityTypeBuilder<GroupInvitation> builder)
         {
-            builder.HasOne(x => x.InvitedUser)
+            builder.HasOne(x => x.InvitedProfile)
                 .WithMany(x => x.SentGroupInvitations)
-                .HasForeignKey(x => x.InvitedUserID)
+                .HasForeignKey(x => x.InvitedProfileID)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasOne(x => x.InvitedByUser)
+            builder.HasOne(x => x.InvitedByProfile)
                 .WithMany(x => x.ReceivedGroupInvitations)
-                .HasForeignKey(x => x.InvitedByUserID)
+                .HasForeignKey(x => x.InvitedByProfileID)
                 .OnDelete(DeleteBehavior.NoAction);
         }
     }

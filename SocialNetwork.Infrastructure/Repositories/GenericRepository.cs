@@ -19,9 +19,12 @@ namespace SocialNetwork.Infrastructure.Repositories
         #region Query Methods
         public IQueryable<T> GetAllAsync()
         {
-            IQueryable<T> query = _dbContext.Set<T>();
+            using (var dbContext = _dbContext)
+            {
+                IQueryable<T> query = _dbContext.Set<T>();
 
-            return query;
+                return query;
+            }
         }
 
         public async Task<T?> GetByIdAsync(int id)
