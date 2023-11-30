@@ -11,11 +11,11 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
 {
     public static class AppContextSeed
     {
-        private static readonly DatabaseSeeder dataSeeder = new DatabaseSeeder();
+        //private static readonly DatabaseSeeder dataSeeder = new DatabaseSeeder();
 
         public static async Task ApplySeedingAsync(AppDbContext dbContext)
         {
-            //var dataSeeder = new DatabaseSeeder();
+             var dataSeeder = new DatabaseSeeder();
 
             if (!dbContext.Profiles.Any())
             {
@@ -100,6 +100,27 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
             if (!dbContext.PostReactions.Any())
             {
                 await dbContext.Set<PostReaction>().AddRangeAsync(dataSeeder.PostReactions);
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            if (!dbContext.Chats.Any())
+            {
+                await dbContext.Set<Chat>().AddRangeAsync(dataSeeder.Chats);
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            if (!dbContext.ChatParticipants.Any())
+            {
+                await dbContext.Set<ChatParticipant>().AddRangeAsync(dataSeeder.ChatParticipants);
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            if (!dbContext.Messages.Any())
+            {
+                await dbContext.Set<Message>().AddRangeAsync(dataSeeder.Messages);
 
                 await dbContext.SaveChangesAsync();
             }

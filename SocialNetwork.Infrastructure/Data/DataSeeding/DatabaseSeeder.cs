@@ -5,12 +5,13 @@ using SocialNetwork.Domain.Entities.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SocialNetwork.Infrastructure.Data.DataSeeding
 {
-    public class DatabaseSeeder
+    public class DatabaseSeeder : IDisposable
     {
         public IReadOnlyCollection<Profile> Profiles { get; } = new List<Profile>();
         public IReadOnlyCollection<Friendship> Friendships { get; } = new List<Friendship>();
@@ -24,6 +25,9 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
         public IReadOnlyCollection<GroupPost> GroupPosts { get; } = new List<GroupPost>();
         public IReadOnlyCollection<Comment> Comments { get; } = new List<Comment>();
         public IReadOnlyCollection<PostReaction> PostReactions { get; } = new List<PostReaction>();
+        public IReadOnlyCollection<Chat> Chats { get; } = new List<Chat>();
+        public IReadOnlyCollection<ChatParticipant> ChatParticipants { get; } = new List<ChatParticipant>();
+        public IReadOnlyCollection<Message> Messages { get; } = new List<Message>();
 
 
         public DatabaseSeeder()
@@ -40,6 +44,9 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
             GroupPosts = GenerateGroupPosts(amount: 2000, Profiles, Groups.Count);
             Comments = GenerateComments(amount: 4000, Profiles, ProfilePosts.Count + PagePosts.Count + GroupPosts.Count);
             PostReactions = GeneratePostReactions(amount: 10000, Profiles, ProfilePosts.Count + PagePosts.Count + GroupPosts.Count);
+            Chats = GenerateChats(amount: 500, Profiles);
+            ChatParticipants = GenerateChatParticipants(amount: 1000, Profiles, Chats.Count);
+            Messages = GenerateMessages(amount: 50000, ChatParticipants, Chats);
         }
 
         private static IReadOnlyCollection<Profile> GenerateProfiles(int amount)
@@ -204,11 +211,9 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
 
             return PagePosts;
         }
-        
+
         private static IReadOnlyCollection<GroupPost> GenerateGroupPosts(int amount, IEnumerable<Profile> profiles, int groupsCount)
         {
-
-
             var GroupPostFaker = new Faker<GroupPost>()
                 .RuleFor(x => x.Content, f => f.Name.Random.Words(f.Random.Number(5, 50)))
                 .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
@@ -230,7 +235,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
                 .RuleFor(x => x.CommentText, f => f.Name.Random.Words(f.Random.Number(5, 50)))
                 .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
                 .RuleFor(x => x.PostID, f => f.Random.Number(1, postsCount))
-                .RuleFor(x => x.CommentDate, (f,c) => f.Date.Past(1))
+                .RuleFor(x => x.CommentDate, (f, c) => f.Date.Past(1))
                 ;
 
             var Comments = Enumerable.Range(1, amount)
@@ -245,7 +250,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
             var PostReactionFaker = new Faker<PostReaction>()
                 .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
                 .RuleFor(x => x.Type, f => f.PickRandom<ReactionType>())
-                .RuleFor(x => x.ReactionDate, (f,c) => f.Date.Past(1))
+                .RuleFor(x => x.ReactionDate, (f, c) => f.Date.Past(1))
                 .RuleFor(x => x.PostID, f => f.Random.Number(1, postsCount))
                 ;
 
@@ -256,10 +261,94 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
             return PostReactions;
         }
 
+        private static IReadOnlyCollection<Chat> GenerateChats(int amount, IEnumerable<Profile> profiles)
+        {
+            var chatId = 1;
+
+            var ChatParticipantFaker = new Faker<ChatParticipant>()
+                .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
+                .RuleFor(x => x.ChatID, f => chatId)
+                ;
+
+            //var ChatParticipants = ChatParticipantFaker.Generate(2);
+
+            //var MessageFaker = new Faker<Message>()
+            //    .RuleFor(x => x.ChatID, f => chatId)
+            //    .RuleFor(x => x.SenderProfileID, f => f.PickRandom(ChatParticipants.ToList().Select(x => x.ProfileID)))
+            //    .RuleFor(x => x.MessageText, f => f.Random.Words(10))
+            //    .RuleFor(x => x.SendDate, f => f.Date.Past(3))
+            //;
+
+            //var messages = GenerateMessages(10, )
+
+            var ChatFaker = new Faker<Chat>()
+                .UseSeed(chatId)
+                .RuleFor(x => x.StartDate, (f) => f.Date.Past(3))
+                //.RuleFor(x => x.Participants, (f, x) => GenerateChatParticipants(2, profiles, chatId).ToList())
+                //.RuleFor(x => x.Participants, (f, x) => ChatParticipantFaker.Generate(2))
+                //.RuleFor(x => x.Messages, (f, x) => GenerateMessages(10, x.Participants.Select(x => x.ProfileID), chatId).ToList())
+                ;
+
+            var Chats = Enumerable.Range(1, amount)
+                .Select(i => ChatFaker.Generate())
+                .ToList();
+
+            return Chats;
+        }
+
+
+        private static IReadOnlyCollection<ChatParticipant> GenerateChatParticipants(int amount, IEnumerable<Profile> profiles, int chatsCount)
+        {
+
+            var ChatParticipantFaker = new Faker<ChatParticipant>()
+                //.UseSeed(1)
+                .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
+                //.RuleFor(x => x.ChatID, f => chatId)
+                .RuleFor(x => x.ChatID, f => f.Random.Number(1, chatsCount))
+                ;
+
+            var ChatParticipants = Enumerable.Range(1, amount)
+                .Select(i => ChatParticipantFaker.Generate())
+                //.Select(i => SeedRow(ChatParticipantFaker, i))
+                .GroupBy(x => new { x.ChatID, x.ProfileID })
+                .Select(x => x.First())
+                //.SelectMany(x => x.Take(2))
+                .ToList();
+
+            return ChatParticipants;
+        }
+
+        private static IReadOnlyCollection<Message> GenerateMessages(int amount, IEnumerable<ChatParticipant> chatParticipants, IEnumerable<Chat> chats)
+        {
+            var MessageFaker = new Faker<Message>()
+                .RuleFor(x => x.ChatID, f => f.PickRandom(chatParticipants).ChatID)
+                //.RuleFor(x => x.SenderProfileID, (f, m) => f.PickRandom(chats.Where(c => c.Participants.Any(cp => cp.ChatID == m.ChatID)).SelectMany(x => x.Participants)).ProfileID)
+                .RuleFor(x => x.SenderProfileID, (f, m) => f.PickRandom(chatParticipants.Where(cp => cp.ChatID == m.ChatID)).ProfileID)
+                .RuleFor(x => x.MessageText, f => f.Random.Words(10))
+                .RuleFor(x => x.SendDate, f => f.Date.Past(3))
+
+                ;
+
+            var Messages = Enumerable.Range(1, amount)
+                .Select(i => SeedRow(MessageFaker, i))
+                //.GroupBy(x => new { x.ChatID, x.ProfileID })
+                //.Select(x => x.First())
+                .ToList();
+
+            return Messages;
+        }
+
+
+
         private static T SeedRow<T>(Faker<T> faker, int rowId) where T : class
         {
             var recordRow = faker.UseSeed(rowId).Generate();
             return recordRow;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose();
         }
     }
 }

@@ -11,6 +11,7 @@ using SocialNetwork.Infrastructure.Identity;
 using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Repositories.Contract;
 using SocialNetwork.Infrastructure;
+using SocialNetwork.Application.GraphQL;
 
 namespace SocialNetwork.API
 {
@@ -54,14 +55,14 @@ namespace SocialNetwork.API
             builder.Services.AddInfrastructureDependencies();
 
 
-            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IPostService, PostService>();
+            //builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            //builder.Services.AddScoped<IPostService, PostService>();
 
 
             builder.Services
                 .AddGraphQLServer()
                 .RegisterDbContext<AppDbContext>()
-                .AddQueryType<PostService>()
+                .AddQueryType<BaseQuery>()
                 .AddProjections()
                 .AddSorting()
                 .AddFiltering()
