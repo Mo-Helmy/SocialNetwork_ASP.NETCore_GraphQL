@@ -34,6 +34,7 @@ namespace SocialNetwork.Application.GraphQL
         public IQueryable<Message> GetMessagesByChatId(int chatId, AppDbContext dbContext)
         {
             return dbContext.Messages.Where(x => x.ChatID == chatId).OrderBy(x => x.SendDate);
+
         }
     }
 }
