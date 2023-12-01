@@ -96,7 +96,7 @@ namespace SocialNetwork.Application.Services
                 throw new ValidationException(errors.ToString());
             }
 
-            await _userManager.AddToRoleAsync(user, "User");
+            //await _userManager.AddToRoleAsync(user, "User");
             //var rolesList = await _userManager.GetRolesAsync(user);
 
             //var jwtSecurityToken = await CreateJwtToken(user);

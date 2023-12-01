@@ -32,9 +32,19 @@ namespace SocialNetwork.Infrastructure.Data.Config
                     r => r.HasOne(x => x.ReceiverProfile).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverProfileID)
                 );
 
-            //builder.UseTptMappingStrategy();
         }
     }
+
+    //internal class FriendConfig : IEntityTypeConfiguration<Friend>
+    //{
+    //    public void Configure(EntityTypeBuilder<Friend> builder)
+    //    {
+    //        builder.HasOne(x => x.Profile)
+    //            .WithMany(x => x.Friends)
+
+
+    //    }
+    //}
 
     internal class ChatConfig : IEntityTypeConfiguration<Chat>
     {

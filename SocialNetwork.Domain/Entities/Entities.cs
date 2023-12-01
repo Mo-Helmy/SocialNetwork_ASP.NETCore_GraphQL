@@ -56,6 +56,18 @@ namespace SocialNetwork.Domain.Entities
         public Profile SenderProfile { get; set; }
         public Profile ReceiverProfile { get; set; }
     }
+
+    //public class Friend
+    //{
+    //    public string FriendID { get; set; }
+    //    public string ProfileID { get; set; }
+    //    public DateTime StartDate { get; set; }
+
+    //    public Profile Profile { get; set; }
+    //    public Profile FriendProfile { get; set; }
+
+    //}
+
     public class Group
     {
         public int GroupID { get; set; }
@@ -272,6 +284,7 @@ namespace SocialNetwork.Domain.Entities
         // Navigation properties
         public Profile Profile { get; set; }
     }
+
     public class Hashtag
     {
         public int HashtagID { get; set; }
