@@ -35,9 +35,9 @@ namespace SocialNetwork.Application.Features.Chats.Commands.Handlers
 
         public async Task<SendNewMessageResponse> Handle(SendNewMessageCommand request, CancellationToken cancellationToken)
         {
-            //var newMessage = await _chatService.SendNewMessageAsync(request);
+            var newMessage = await _chatService.SendNewMessageAsync(request);
 
-            throw new NotImplementedException();
+            return _mapper.Map<SendNewMessageResponse>(newMessage);
         }
 
         //public async Task Handle(SendNewMessageCommand request, CancellationToken cancellationToken)

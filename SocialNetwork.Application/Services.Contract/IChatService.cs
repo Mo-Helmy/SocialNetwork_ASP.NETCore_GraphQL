@@ -13,6 +13,6 @@ namespace SocialNetwork.Application.Services.Contract
     {
         Task<Chat> StartNewChatAsync(StartNewChatCommand chatCommand);
 
-        Task SendNewMessageAsync(SendNewMessageCommand newMessageCommand);
+        Task<Message> SendNewMessageAsync(SendNewMessageCommand newMessageCommand);
     }
 }

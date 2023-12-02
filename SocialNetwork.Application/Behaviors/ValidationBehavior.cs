@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.Application.Errors;
 
 namespace JobResearchSystem.Application.Behaviors
 {
@@ -23,7 +25,12 @@ namespace JobResearchSystem.Application.Behaviors
                 {
                     var message = failures.Select(x => x.PropertyName + ":" + x.ErrorMessage).FirstOrDefault();
 
-                    throw new ValidationException(message);
+                    //throw new ValidationException(message);
+                    throw new ValidationException(failures);
+
+                    //var validationErrorResponse = new ApiValidationErrorResponse() { Errors = failures.Select(x => x.PropertyName + ":" + x.ErrorMessage).ToList() };
+
+                    //return new BadRequestObjectResult(validationErrorResponse);
                 }
             }
             return await next();

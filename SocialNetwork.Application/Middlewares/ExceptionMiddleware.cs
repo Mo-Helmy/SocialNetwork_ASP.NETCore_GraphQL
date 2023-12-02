@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using SocialNetwork.Application.Errors;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
+using ValidationException = FluentValidation.ValidationException;
 
 namespace SocialNetwork.Application.Middlewares
 {
@@ -50,10 +52,23 @@ namespace SocialNetwork.Application.Middlewares
 
                     case ValidationException e:
                         // custom validation error
-                        responseModel.ErrorMessage = e.Message;
-                        responseModel.StatusCode = (int)HttpStatusCode.BadRequest;
                         response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        break;
+                        if (e.Errors is not null)
+                        {
+                            responseModel = new ApiValidationErrorResponse()
+                            {
+                                StatusCode = (int)HttpStatusCode.BadRequest,
+                                Errors = e.Errors.Select(e => e.ErrorMessage).ToList(),
+                                ErrorMessage = e.Message
+                            };
+                            break;
+                        }
+                        else
+                        {
+                            responseModel.ErrorMessage = e.Message ?? ex.Message;
+                            responseModel.StatusCode = (int)HttpStatusCode.BadRequest;
+                            break;
+                        }
                     case KeyNotFoundException e:
                         // not found error
                         responseModel.ErrorMessage = e.Message;

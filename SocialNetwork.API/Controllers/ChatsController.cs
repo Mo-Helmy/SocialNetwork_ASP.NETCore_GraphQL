@@ -38,9 +38,9 @@ namespace SocialNetwork.API.Controllers
             var profileId = User.FindFirstValue("uid")!;
             messageCommand.SenderProfileId = profileId;
 
-            await _mediator.Send(messageCommand);
+            //await _mediator.Send(messageCommand);
 
-            return new CreatedResult(string.Empty, null);
+            return new CreatedResult(string.Empty, await _mediator.Send(messageCommand));
         }
     }
 }

@@ -15,6 +15,7 @@ namespace SocialNetwork.Infrastructure.Data
         public DbSet<Profile> Profiles { get; set; }
 
         public DbSet<Friendship> Friendships { get; set; }
+        public DbSet<Friend> Friends { get; set; }
 
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }

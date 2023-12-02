@@ -16,35 +16,48 @@ namespace SocialNetwork.Infrastructure.Data.Config
         {
             builder.HasKey(x => x.ProfileId);
 
-            //builder.HasOne(x => x.User)
-            //    .WithOne(x => x.Profile)
-            //    .HasForeignKey<Profile>(x => x.ProfileId)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
             builder.HasMany(x => x.Chats)
                 .WithMany()
                 .UsingEntity<ChatParticipant>();
 
             builder.HasMany(x => x.Friends)
                 .WithMany()
-                .UsingEntity<Friendship>(
-                    l => l.HasOne(x => x.SenderProfile).WithMany(x => x.FriendshipsSend).HasForeignKey(x => x.SenderProfileID),
-                    r => r.HasOne(x => x.ReceiverProfile).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverProfileID)
+                .UsingEntity<Friend>(
+                        r => r.HasOne(x => x.FriendProfile).WithMany().HasForeignKey(x => x.FriendProfileID),
+                        l => l.HasOne(x => x.Profile).WithMany().HasForeignKey(x => x.ProfileID)
                 );
+
+            //builder.HasMany(x => x.Friends)
+            //    .WithMany()
+            //    .UsingEntity(j => j.ToTable("UserFriends"));
+
+            //builder.HasMany(x => x.Friends)
+            //    .WithMany()
+            //    .UsingEntity<Friendship>(
+            //        l => l.HasOne(x => x.SenderProfile).WithMany(x => x.FriendshipsSend).HasForeignKey(x => x.SenderProfileID),
+            //        r => r.HasOne(x => x.ReceiverProfile).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverProfileID)
+            //    );
 
         }
     }
+    
 
-    //internal class FriendConfig : IEntityTypeConfiguration<Friend>
-    //{
-    //    public void Configure(EntityTypeBuilder<Friend> builder)
-    //    {
-    //        builder.HasOne(x => x.Profile)
-    //            .WithMany(x => x.Friends)
+    internal class FriendConfig : IEntityTypeConfiguration<Friend>
+    {
+        public void Configure(EntityTypeBuilder<Friend> builder)
+        {
+            builder.HasIndex(x => new { x.FriendProfileID, x.ProfileID }).IsUnique();
 
+            builder.HasOne(x => x.Profile)
+                .WithOne()
+                .HasForeignKey<Friend>(x => x.ProfileID);
 
-    //    }
-    //}
+            builder.HasOne(x => x.FriendProfile)
+                .WithMany()
+                .HasForeignKey(x => x.FriendProfileID);
+
+        }
+    }
 
     internal class ChatConfig : IEntityTypeConfiguration<Chat>
     {

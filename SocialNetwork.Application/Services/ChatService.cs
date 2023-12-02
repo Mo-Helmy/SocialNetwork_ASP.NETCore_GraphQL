@@ -51,7 +51,7 @@ namespace SocialNetwork.Application.Services
             return newChat;
         }
 
-        public async Task SendNewMessageAsync(SendNewMessageCommand newMessageCommand)
+        public async Task<Message> SendNewMessageAsync(SendNewMessageCommand newMessageCommand)
         {
             // add new message
             var newMessage = await _unitOfWork.GetRepository<Message>().CreateAsync(new Message()
@@ -79,6 +79,8 @@ namespace SocialNetwork.Application.Services
             }
 
             await _unitOfWork.Complete();
+
+            return newMessage;
         }
     }
 }

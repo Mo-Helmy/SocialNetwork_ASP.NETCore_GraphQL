@@ -15,6 +15,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
     {
         public IReadOnlyCollection<Profile> Profiles { get; } = new List<Profile>();
         public IReadOnlyCollection<Friendship> Friendships { get; } = new List<Friendship>();
+        public IReadOnlyCollection<Friend> Friends { get; } = new List<Friend>();
         public IReadOnlyCollection<Group> Groups { get; } = new List<Group>();
         public IReadOnlyCollection<GroupMember> GroupMembers { get; } = new List<GroupMember>();
         public IReadOnlyCollection<GroupInvitation> GroupInvitations { get; } = new List<GroupInvitation>();
@@ -34,6 +35,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
         {
             Profiles = GenerateProfiles(amount: 500);
             Friendships = GenerateFriendships(amount: 2000, Profiles);
+            Friends = GenerateFriends(amount: 2000, Profiles);
             Groups = GenerateGroups(amount: 50, Profiles);
             GroupMembers = GenerateGroupMembers(amount: 500, Profiles, Groups);
             GroupInvitations = GenerateGroupInvitations(amount: 500, Profiles, Groups);
@@ -51,6 +53,11 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
 
         private static IReadOnlyCollection<Profile> GenerateProfiles(int amount)
         {
+            var FriendFaker = new Faker<Profile>()
+                .UseSeed(1)
+                .RuleFor(p => p.ProfileId, f => $"user{f.Random.Number(1, amount)}");
+
+
             var userNoIds = 1;
 
             var profileFaker = new Faker<Profile>()
@@ -61,6 +68,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
                 .RuleFor(p => p.Bio, f => f.Random.Words(50))
                 .RuleFor(p => p.BirthDate, f => f.Date.Past(30))
                 .RuleFor(p => p.PicturePath, f => f.Person.Avatar)
+                //.RuleFor(p => p.Friends, f => FriendFaker.Generate(10))
                 ;
 
             var profiles = Enumerable.Range(1, amount)
@@ -84,6 +92,26 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
                 // We do this GroupBy() + Select() to remove the duplicates
                 // from the generated join table entities
                 .GroupBy(x => new { x.SenderProfileID, x.ReceiverProfileID })
+                .Select(x => x.First())
+                .ToList();
+
+            return Friendships;
+        }
+        
+        private static IReadOnlyCollection<Friend> GenerateFriends(int amount, IEnumerable<Profile> profiles)
+        {
+            // Now we set up the faker for our join table.
+            // We do this by grabbing a random product and category that were generated.
+            var FriendshipFaker = new Faker<Friend>()
+                .RuleFor(x => x.FriendProfileID, f => f.PickRandom(profiles).ProfileId)
+                .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
+                .RuleFor(x => x.StartDate, f => f.Date.Past(3));
+
+            var Friendships = Enumerable.Range(1, amount)
+                .Select(i => SeedRow(FriendshipFaker, i))
+                // We do this GroupBy() + Select() to remove the duplicates
+                // from the generated join table entities
+                .GroupBy(x => new { x.FriendProfileID, x.ProfileID })
                 .Select(x => x.First())
                 .ToList();
 

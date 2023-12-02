@@ -57,16 +57,17 @@ namespace SocialNetwork.Domain.Entities
         public Profile ReceiverProfile { get; set; }
     }
 
-    //public class Friend
-    //{
-    //    public string FriendID { get; set; }
-    //    public string ProfileID { get; set; }
-    //    public DateTime StartDate { get; set; }
+    public class Friend
+    {
+        public int FriendID { get; set; }
 
-    //    public Profile Profile { get; set; }
-    //    public Profile FriendProfile { get; set; }
+        public string FriendProfileID { get; set; }
+        public string ProfileID { get; set; }
+        public DateTime StartDate { get; set; }
 
-    //}
+        public Profile Profile { get; set; }
+        public Profile FriendProfile { get; set; }
+    }
 
     public class Group
     {
@@ -76,6 +77,7 @@ namespace SocialNetwork.Domain.Entities
         public string CreatorProfileID { get; set; }
         public GroupStatus GroupStatus { get; set; }
         public DateTime CreationDate { get; set; }
+
         // Navigation properties
         public Profile CreatorProfile { get; set; }
         public ICollection<GroupMember> GroupMembers { get; set; }

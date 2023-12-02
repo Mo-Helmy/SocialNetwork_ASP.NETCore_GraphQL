@@ -11,6 +11,8 @@ namespace SocialNetwork.Application.Features.Chats.Commands.Responses
         public string MessageID { get; set; }
         public int ChatID { get; set; }
 
+        public string SenderProfileID { get; set; }
+
         public string MessageText { get; set; }
 
         

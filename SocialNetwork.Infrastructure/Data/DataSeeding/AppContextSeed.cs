@@ -11,11 +11,11 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
 {
     public static class AppContextSeed
     {
-        //private static readonly DatabaseSeeder dataSeeder = new DatabaseSeeder();
+        private static readonly DatabaseSeeder dataSeeder = new DatabaseSeeder();
 
         public static async Task ApplySeedingAsync(AppDbContext dbContext)
         {
-             var dataSeeder = new DatabaseSeeder();
+            //var dataSeeder = new DatabaseSeeder();
 
             if (!dbContext.Profiles.Any())
             {
@@ -27,6 +27,13 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
             if (!dbContext.Friendships.Any())
             {
                 await dbContext.Set<Friendship>().AddRangeAsync(dataSeeder.Friendships);
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            if (!dbContext.Friends.Any())
+            {
+                await dbContext.Set<Friend>().AddRangeAsync(dataSeeder.Friends);
 
                 await dbContext.SaveChangesAsync();
             }

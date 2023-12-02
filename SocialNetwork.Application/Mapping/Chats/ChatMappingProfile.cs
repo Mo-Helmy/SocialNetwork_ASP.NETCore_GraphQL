@@ -16,6 +16,7 @@ namespace SocialNetwork.Application.Mapping.Chats
         public ChatMappingProfile() 
         {
             CreateMap<Chat, StartNewChatResponse>();
+            CreateMap<Message, SendNewMessageResponse>();
         }
     }
 }
