@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialNetwork.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SocialNetwork.Infrastructure.Data;
 namespace SocialNetwork.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231202151716_change-friendShip-to-friendRequest")]
+    partial class changefriendShiptofriendRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,9 +134,7 @@ namespace SocialNetwork.Infrastructure.Data.Migrations
 
                     b.HasIndex("ReceiverProfileID");
 
-                    b.HasIndex("SenderProfileID", "ReceiverProfileID")
-                        .IsUnique()
-                        .HasFilter("[SenderProfileID] IS NOT NULL AND [ReceiverProfileID] IS NOT NULL");
+                    b.HasIndex("SenderProfileID");
 
                     b.ToTable("FriendRequests");
                 });

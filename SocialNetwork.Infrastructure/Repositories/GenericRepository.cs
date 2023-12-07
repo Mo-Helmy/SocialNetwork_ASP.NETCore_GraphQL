@@ -34,6 +34,13 @@ namespace SocialNetwork.Infrastructure.Repositories
             return await _dbContext.Set<T>().FindAsync(id);
         }
 
+        public async Task<T?> GetByIdAsync(string id)
+        {
+            IQueryable<T> query = _dbContext.Set<T>();
+
+            return await _dbContext.Set<T>().FindAsync(id);
+        }
+
         public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec)
         {
             return await ApplySpecification(spec).ToListAsync();
@@ -67,20 +74,20 @@ namespace SocialNetwork.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<T?> DeleteAsync(int id)
+        public async Task DeleteAsync(T entity)
         {
             //throw new NotImplementedException();
 
-            var entity = await _dbContext.Set<T>().FindAsync(id);
+            //var entity = await _dbContext.Set<T>().FindAsync(id);
 
-            if (entity is null) return null;
+            //if (entity is null) return null;
 
             //entity.IsDeleted = true;
             //entity.DateDeleted = DateTime.Now;
 
             _dbContext.Set<T>().Remove(entity);
 
-            return entity;
+            //return entity;
         }
 
         public async Task<T?> UpdateAsync(T entity)

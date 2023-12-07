@@ -15,17 +15,15 @@ namespace SocialNetwork.Domain.Entities
 {
     public class Profile
     {
-        //FK for user as userId && PK
+        // PK & equals UserId
         public string ProfileId { get; set; }
         public string FristName { get; set; }
         public string LastName { get; set; }
+        public string DisplayName() => $"{FristName} {LastName}";
         public string? Bio {  get; set; }
         public Gender Gender { get; set; }
         public string? PicturePath { get; set; }
         public DateTime? BirthDate { get; set; }
-
-        //public string UserId { get; set; }
-        //public AppUser User { get; set; }
 
         // Navigation properties for relationships
         public ICollection<Group> GroupsCreated { get; set; }
@@ -36,8 +34,8 @@ namespace SocialNetwork.Domain.Entities
         public ICollection<PageFollower> PageFollowers { get; set; }
         public ICollection<ProfilePost> ProfilePosts { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Friendship> FriendshipsSend { get; set; }
-        public ICollection<Friendship> FriendshipsReceived { get; set; }
+        public ICollection<FriendRequest> FriendRequestsSend { get; set; }
+        public ICollection<FriendRequest> FriendRequestsReceived { get; set; }
         public ICollection<Profile> Friends { get; set; }
         public ICollection<Chat> Chats { get; set; }
         public ICollection<ChatParticipant> ChatParticipants { get; set; }
@@ -45,12 +43,12 @@ namespace SocialNetwork.Domain.Entities
         public ICollection<Notification> Notifications { get; set; }
     }
 
-    public class Friendship
+    public class FriendRequest
     {
-        public int FriendshipID { get; set; }
+        public int FriendRequestID { get; set; }
         public string SenderProfileID { get; set; }
         public string ReceiverProfileID { get; set; }
-        public FriendshipStatus FriendshipStatus { get; set; }
+        public FriendRequestStatus FriendRequestStatus { get; set; }
 
         // Navigation properties
         public Profile SenderProfile { get; set; }

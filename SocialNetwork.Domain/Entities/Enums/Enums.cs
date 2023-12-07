@@ -28,7 +28,7 @@ namespace SocialNetwork.Domain.Entities.Enums
         Document // Another possible media type
     }
 
-    public enum FriendshipStatus
+    public enum FriendRequestStatus
     {
         Pending,
         Accept,

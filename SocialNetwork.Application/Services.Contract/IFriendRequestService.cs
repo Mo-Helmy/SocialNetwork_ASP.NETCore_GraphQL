@@ -9,12 +9,8 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Application.Services.Contract
 {
-    public interface IChatService : IGenericService<Chat>
+    public interface IFriendRequestService : IGenericService<FriendRequest>
     {
-        Task<Chat> StartNewChatAsync(StartNewChatCommand chatCommand);
-
-        Task<Message> SendNewMessageAsync(SendNewMessageCommand newMessageCommand);
-
-        Task<MessageReaction> ReactToMessageAsync(MessageReaction reaction);
+       
     }
 }

@@ -12,17 +12,19 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Application.Features.Chats.Commands.Models
 {
-    public class SendNewMessageCommand : IRequest<SendNewMessageResponse>
+    public class ReactToMessageCommand : IRequest<MessageReactionResponse>
     {
         [JsonIgnore]
-        public string? SenderProfileId { get; set; }
+        public string? ProfileID { get; set; }
+
+        public int? ReactionID {  get; set; }
 
         [Required]
-        public int ChatID { get; set; }
+        public int MessageId { get; set; }
 
-        public string? MessageText { get; set; }
+        public ReactionType Type { get; set; }
 
-        public IEnumerable<SendNewMediaCommand>? Medias { get; set; }
+        public int ChatId { get; set; }
 
     }
 }

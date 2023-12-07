@@ -12,7 +12,7 @@ namespace SocialNetwork.Infrastructure.Repositories.Contract
     {
         IQueryable<T> GetAllAsync();
         Task<T?> GetByIdAsync(int id);
-
+        Task<T?> GetByIdAsync(string id);
 
         Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec);
         Task<T?> GetByIdWithSpecAsync(ISpecification<T> spec);
@@ -22,6 +22,6 @@ namespace SocialNetwork.Infrastructure.Repositories.Contract
 
         Task<T?> CreateAsync(T entity);
         Task<T?> UpdateAsync(T entity);
-        Task<T?> DeleteAsync(int id);
+        Task DeleteAsync(T entity);
     }
 }

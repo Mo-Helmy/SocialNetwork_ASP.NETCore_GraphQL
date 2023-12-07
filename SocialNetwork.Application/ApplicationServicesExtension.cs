@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using JobResearchSystem.Application.Behaviors;
 using MediatR;
 using FluentValidation;
+using Microsoft.AspNetCore.SignalR;
+using SocialNetwork.Application.Hubs;
 
 namespace SocialNetwork.Application
 {
@@ -21,11 +23,17 @@ namespace SocialNetwork.Application
     {
         public static IServiceCollection AddApplicationsServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IMailService, MailService>();
             services.AddScoped<ISMSService, SMSService>();
 
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IFriendRequestService, FriendRequestService>();
+            services.AddScoped<IFriendService, FriendService>();
+
+            services.AddScoped<INotificationService, NotificationService>();
 
 
             services.Configure<MailSettings>(configuration.GetSection(MailSettings.SectionKey));
@@ -39,6 +47,9 @@ namespace SocialNetwork.Application
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             // 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddSignalR();
+            services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
             return services;
         }

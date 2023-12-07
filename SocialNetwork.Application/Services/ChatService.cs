@@ -60,6 +60,7 @@ namespace SocialNetwork.Application.Services
                 MessageText = newMessageCommand.MessageText,
                 SenderProfileID = newMessageCommand.SenderProfileId,
                 SendDate = DateTime.Now,
+                Medias = new List<MessageMedia>() { },
             });
 
             // add media if exist
@@ -67,11 +68,10 @@ namespace SocialNetwork.Application.Services
             {
                 foreach (var item in newMessageCommand.Medias)
                 {
-                    await _unitOfWork.GetRepository<MessageMedia>().CreateAsync(new MessageMedia
+                    newMessage.Medias.Add(new MessageMedia
                     {
                         Path = item.MediaPath,
                         Type = item.MediaType,
-                        MessageId = newMessage.MessageID,
                         ProfileId = newMessageCommand.SenderProfileId,
                         UploadDate = DateTime.Now
                     });
@@ -81,6 +81,21 @@ namespace SocialNetwork.Application.Services
             await _unitOfWork.Complete();
 
             return newMessage;
+        }
+
+        public async Task<MessageReaction> ReactToMessageAsync(MessageReaction reaction)
+        {
+            if(reaction.ReactionID == 0)
+            {
+                await _unitOfWork.GetRepository<MessageReaction>().CreateAsync(reaction);
+            } else
+            {
+                await _unitOfWork.GetRepository<MessageReaction>().UpdateAsync(reaction);
+            }
+
+            await _unitOfWork.Complete();
+
+            return reaction;
         }
     }
 }

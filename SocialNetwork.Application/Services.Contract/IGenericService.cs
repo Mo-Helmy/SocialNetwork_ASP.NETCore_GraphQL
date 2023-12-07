@@ -5,20 +5,23 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Twilio.TwiML.Voice;
+using Task = System.Threading.Tasks.Task;
 
 namespace SocialNetwork.Application.Services.Contract
 {
     public interface IGenericService<T> where T : class
     {
-        public Task<IReadOnlyList<T>> GetAllAsync();
+        Task<IReadOnlyList<T>> GetAllAsync();
 
-        public Task<T?> GetByIdAsync(int id);
+        Task<T?> GetByIdAsync(int id);
 
-        public Task<T?> CreateAsync(T entity);
+        Task<T?> CreateAsync(T entity);
 
-        public Task<T?> UpdateAsync(int id, object updateCommand);
+        Task<T?> UpdateAsync(int id, object updateCommand);
+        Task<T?> UpdateAsync(string id, object updateCommand);
 
-        public Task<bool> DeleteAsync(int id);
+        Task DeleteAsync(int id);
 
     }
 }

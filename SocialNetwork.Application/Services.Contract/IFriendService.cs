@@ -1,5 +1,6 @@
 ﻿using SocialNetwork.Application.Dtos.MailDtos;
 using SocialNetwork.Application.Features.Chats.Commands.Models;
+using SocialNetwork.Application.Features.Friends.Commands.Models;
 using SocialNetwork.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,9 @@ using System.Threading.Tasks;
 
 namespace SocialNetwork.Application.Services.Contract
 {
-    public interface IChatService : IGenericService<Chat>
+    public interface IFriendService : IGenericService<Friend>
     {
-        Task<Chat> StartNewChatAsync(StartNewChatCommand chatCommand);
-
-        Task<Message> SendNewMessageAsync(SendNewMessageCommand newMessageCommand);
-
-        Task<MessageReaction> ReactToMessageAsync(MessageReaction reaction);
+        Task<FriendRequest> AcceptFriendRequestAsync(AcceptFriendRequestCommand requestCommand);
+        Task<FriendRequest> RejectFriendRequestAsync(RejectFriendRequestCommand requestCommand);
     }
 }

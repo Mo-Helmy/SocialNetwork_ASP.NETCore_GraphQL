@@ -24,9 +24,9 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
                 await dbContext.SaveChangesAsync();
             }
 
-            if (!dbContext.Friendships.Any())
+            if (!dbContext.FriendRequests.Any())
             {
-                await dbContext.Set<Friendship>().AddRangeAsync(dataSeeder.Friendships);
+                await dbContext.Set<FriendRequest>().AddRangeAsync(dataSeeder.FriendRequests);
 
                 await dbContext.SaveChangesAsync();
             }

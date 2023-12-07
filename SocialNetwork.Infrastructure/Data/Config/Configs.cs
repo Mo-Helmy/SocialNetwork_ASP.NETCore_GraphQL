@@ -33,14 +33,32 @@ namespace SocialNetwork.Infrastructure.Data.Config
 
             //builder.HasMany(x => x.Friends)
             //    .WithMany()
-            //    .UsingEntity<Friendship>(
-            //        l => l.HasOne(x => x.SenderProfile).WithMany(x => x.FriendshipsSend).HasForeignKey(x => x.SenderProfileID),
-            //        r => r.HasOne(x => x.ReceiverProfile).WithMany(x => x.FriendshipsReceived).HasForeignKey(x => x.ReceiverProfileID)
+            //    .UsingEntity<FriendRequest>(
+            //        l => l.HasOne(x => x.SenderProfile).WithMany(x => x.FriendRequestsSend).HasForeignKey(x => x.SenderProfileID),
+            //        r => r.HasOne(x => x.ReceiverProfile).WithMany(x => x.FriendRequestsReceived).HasForeignKey(x => x.ReceiverProfileID)
             //    );
 
         }
     }
-    
+
+    internal class FriendRequestConfig : IEntityTypeConfiguration<FriendRequest>
+    {
+        public void Configure(EntityTypeBuilder<FriendRequest> builder)
+        {
+            builder.HasIndex(x => new { x.SenderProfileID, x.ReceiverProfileID }).IsUnique();
+
+            builder.HasOne(x => x.SenderProfile)
+                .WithMany(x => x.FriendRequestsSend)
+                .HasForeignKey(x => x.SenderProfileID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(x => x.ReceiverProfile)
+                .WithMany(x => x.FriendRequestsReceived)
+                .HasForeignKey(x => x.ReceiverProfileID)
+                .OnDelete(DeleteBehavior.NoAction);
+
+        }
+    }
 
     internal class FriendConfig : IEntityTypeConfiguration<Friend>
     {
@@ -88,22 +106,6 @@ namespace SocialNetwork.Infrastructure.Data.Config
         }
     }
 
-    internal class FriendshipConfig : IEntityTypeConfiguration<Friendship>
-    {
-        public void Configure(EntityTypeBuilder<Friendship> builder)
-        {
-            builder.HasOne(x => x.SenderProfile)
-                .WithMany(x => x.FriendshipsSend)
-                .HasForeignKey(x => x.SenderProfileID)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.HasOne(x => x.ReceiverProfile)
-                .WithMany(x => x.FriendshipsReceived)
-                .HasForeignKey(x => x.ReceiverProfileID)
-                .OnDelete(DeleteBehavior.NoAction);
-
-        }
-    }
 
     internal class GroupConfig : IEntityTypeConfiguration<Group>
     {

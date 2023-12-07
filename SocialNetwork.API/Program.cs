@@ -12,6 +12,8 @@ using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Repositories.Contract;
 using SocialNetwork.Infrastructure;
 using SocialNetwork.Application.GraphQL;
+using System.Text.Json.Serialization;
+using SocialNetwork.Application.Hubs;
 
 namespace SocialNetwork.API
 {
@@ -23,7 +25,12 @@ namespace SocialNetwork.API
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(opt =>
+            {
+                // ignore null values when serializing to json
+                opt.JsonSerializerOptions.DefaultIgnoreCondition
+                               = JsonIgnoreCondition.WhenWritingNull;
+            });
 
             builder.Services.AddDbContext<AppDbContext>(options => 
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
@@ -55,14 +62,10 @@ namespace SocialNetwork.API
             builder.Services.AddInfrastructureDependencies();
 
 
-            //builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            //builder.Services.AddScoped<IPostService, PostService>();
-
-
             builder.Services
                 .AddGraphQLServer()
-                .RegisterDbContext<AppDbContext>()
                 .AddQueryType<BaseQuery>()
+                .RegisterDbContext<AppDbContext>()
                 .AddProjections()
                 .AddSorting()
                 .AddFiltering()
@@ -86,6 +89,10 @@ namespace SocialNetwork.API
             app.MapControllers();
 
             app.MapGraphQL();
+
+            app.MapHub<NotificationHub>("/hubs/notification");
+            app.MapHub<ChatHub>("/hubs/chat");
+
 
             app.Run();
         }

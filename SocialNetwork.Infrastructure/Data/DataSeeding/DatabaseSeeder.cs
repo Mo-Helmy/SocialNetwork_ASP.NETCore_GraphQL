@@ -14,7 +14,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
     public class DatabaseSeeder : IDisposable
     {
         public IReadOnlyCollection<Profile> Profiles { get; } = new List<Profile>();
-        public IReadOnlyCollection<Friendship> Friendships { get; } = new List<Friendship>();
+        public IReadOnlyCollection<FriendRequest> FriendRequests { get; } = new List<FriendRequest>();
         public IReadOnlyCollection<Friend> Friends { get; } = new List<Friend>();
         public IReadOnlyCollection<Group> Groups { get; } = new List<Group>();
         public IReadOnlyCollection<GroupMember> GroupMembers { get; } = new List<GroupMember>();
@@ -34,7 +34,7 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
         public DatabaseSeeder()
         {
             Profiles = GenerateProfiles(amount: 500);
-            Friendships = GenerateFriendships(amount: 2000, Profiles);
+            FriendRequests = GenerateFriendRequests(amount: 2000, Profiles);
             Friends = GenerateFriends(amount: 2000, Profiles);
             Groups = GenerateGroups(amount: 50, Profiles);
             GroupMembers = GenerateGroupMembers(amount: 500, Profiles, Groups);
@@ -78,44 +78,44 @@ namespace SocialNetwork.Infrastructure.Data.DataSeeding
             return profiles;
         }
 
-        private static IReadOnlyCollection<Friendship> GenerateFriendships(int amount, IEnumerable<Profile> profiles)
+        private static IReadOnlyCollection<FriendRequest> GenerateFriendRequests(int amount, IEnumerable<Profile> profiles)
         {
             // Now we set up the faker for our join table.
             // We do this by grabbing a random product and category that were generated.
-            var FriendshipFaker = new Faker<Friendship>()
+            var FriendRequestFaker = new Faker<FriendRequest>()
                 .RuleFor(x => x.SenderProfileID, f => f.PickRandom(profiles).ProfileId)
                 .RuleFor(x => x.ReceiverProfileID, f => f.PickRandom(profiles).ProfileId)
-                .RuleFor(x => x.FriendshipStatus, f => f.PickRandom<FriendshipStatus>());
+                .RuleFor(x => x.FriendRequestStatus, f => f.PickRandom<FriendRequestStatus>());
 
-            var Friendships = Enumerable.Range(1, amount)
-                .Select(i => SeedRow(FriendshipFaker, i))
+            var FriendRequests = Enumerable.Range(1, amount)
+                .Select(i => SeedRow(FriendRequestFaker, i))
                 // We do this GroupBy() + Select() to remove the duplicates
                 // from the generated join table entities
                 .GroupBy(x => new { x.SenderProfileID, x.ReceiverProfileID })
                 .Select(x => x.First())
                 .ToList();
 
-            return Friendships;
+            return FriendRequests;
         }
         
         private static IReadOnlyCollection<Friend> GenerateFriends(int amount, IEnumerable<Profile> profiles)
         {
             // Now we set up the faker for our join table.
             // We do this by grabbing a random product and category that were generated.
-            var FriendshipFaker = new Faker<Friend>()
+            var FriendFaker = new Faker<Friend>()
                 .RuleFor(x => x.FriendProfileID, f => f.PickRandom(profiles).ProfileId)
                 .RuleFor(x => x.ProfileID, f => f.PickRandom(profiles).ProfileId)
                 .RuleFor(x => x.StartDate, f => f.Date.Past(3));
 
-            var Friendships = Enumerable.Range(1, amount)
-                .Select(i => SeedRow(FriendshipFaker, i))
+            var Friends = Enumerable.Range(1, amount)
+                .Select(i => SeedRow(FriendFaker, i))
                 // We do this GroupBy() + Select() to remove the duplicates
                 // from the generated join table entities
                 .GroupBy(x => new { x.FriendProfileID, x.ProfileID })
                 .Select(x => x.First())
                 .ToList();
 
-            return Friendships;
+            return Friends;
         }
 
         private static IReadOnlyCollection<Group> GenerateGroups(int amount, IEnumerable<Profile> profiles)

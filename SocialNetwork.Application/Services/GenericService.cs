@@ -51,15 +51,37 @@ namespace SocialNetwork.Application.Services
             return count > 0 ? currentEntity : null;
         }
 
-        public virtual async Task<bool> DeleteAsync(int id)
+        public virtual async Task<TEntity?> UpdateAsync(string id, object updateCommand)
         {
-            var deletedEntity = await _unitOfWork.GetRepository<TEntity>().DeleteAsync(id);
+            var currentEntity = await _unitOfWork.GetRepository<TEntity>().GetByIdAsync(id);
 
-            if (deletedEntity is null) return false;
+            if (currentEntity is null) throw new KeyNotFoundException("Id Key Not Exist");
+
+            //currentEntity.DateUpdated = DateTime.Now;
+
+            UpdateObject(currentEntity, updateCommand);
 
             var count = await _unitOfWork.Complete();
 
-            return count > 0 ? true : false;
+            return count > 0 ? currentEntity : null;
+        }
+
+        public virtual async Task DeleteAsync(int id)
+        {
+            var entity = await _unitOfWork.GetRepository<TEntity>().GetByIdAsync(id) 
+                ?? throw new KeyNotFoundException("entity Id is not exist!");
+
+            await _unitOfWork.GetRepository<TEntity>().DeleteAsync(entity);
+
+            await _unitOfWork.Complete();
+
+            //var deletedEntity = await _unitOfWork.GetRepository<TEntity>().DeleteAsync(id);
+
+            //if (deletedEntity is null) return false;
+
+            //var count = await _unitOfWork.Complete();
+
+            //return count > 0 ? true : false;
         }
 
 
