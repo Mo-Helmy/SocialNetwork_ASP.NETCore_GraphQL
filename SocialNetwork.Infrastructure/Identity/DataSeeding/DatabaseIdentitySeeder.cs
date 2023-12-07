@@ -25,6 +25,7 @@ namespace SocialNetwork.Infrastructure.Data
                  .RuleFor(u => u.Id, f => $"user{userNoIds++}")
                     .RuleFor(u => u.Email, (f, u) => $"{u.Id}@example.com")
                     .RuleFor(u => u.UserName, (f, u) => u.Id)
+                    .RuleFor(u => u.EmailConfirmed, f => true)
                     //.RuleFor(u => u.RegistrationDate, (f, u) => f.Date.Past(3))
                     //.RuleFor(u => u.LastLoginDate, (f, u) => f.Date.Past(1, u.RegistrationDate))
                     ;
